@@ -3,7 +3,7 @@
 > Balancing Coverage and Set-Size Equity Across Demographic Groups
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aarushdubey/fair-conformal-finance/blob/main/notebooks/demo.ipynb)
-[![Paper Under Review](https://img.shields.io/badge/AISTATS-2027-blue.svg)](paper/main.tex)
+[![Paper Under Review](https://img.shields.io/badge/AISTATS-2027-blue.svg)](#)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -62,11 +62,9 @@ fair-conformal-finance/
 │   ├── data/                # Data loading and preprocessing
 │   └── utils/               # Plotting, evaluation, reproducibility
 ├── experiments/             # Experiment scripts and configs
-├── notebooks/               # Exploratory analysis
-├── results/                 # Generated figures and tables
-├── paper/                   # LaTeX source for the paper
-├── tests/                   # Unit tests
-└── docs/                    # Additional documentation
+├── notebooks/               # Exploratory analysis & 1-click Colab demo
+├── results/                 # Generated figures and benchmark tables
+└── tests/                   # Unit test suite
 ```
 
 ## Quick Start

@@ -44,3 +44,9 @@ Thumbs.db
 # Logs
 *.log
 wandb/
+
+# Paper manuscript & personal reference docs (kept locally, not on public GitHub)
+paper/
+docs/
+*.pdf
+*.zip
