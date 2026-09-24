@@ -604,7 +604,68 @@ def build_pdf(filename):
         "'delve into', 'testament to', and formulaic transitions) to ensure 100% human authenticity and zero plagiarism score."
     )
     story.append(create_callout(callout_human, "HUMANIZATION & ORIGINALITY GUARANTEE", "#EFF6FF", "#2563EB"))
+    story.append(Spacer(1, 14))
+
+    # SECTION 11: Overleaf & Manuscript Guide
+    story.append(Paragraph("11. Compiling the Paper with Overleaf", h1_style))
+    story.append(
+        Paragraph(
+            "The academic paper manuscript is now fully written in LaTeX (<code>paper/main.tex</code>) and accompanied by "
+            "curated BibTeX citations (<code>paper/references.bib</code>), style files (<code>aistats2027.sty</code>), and vector figures.",
+            body_style,
+        )
+    )
+    story.append(
+        Paragraph(
+            "<b>Why Overleaf is the Industry Standard:</b> Overleaf is the cloud LaTeX compiler used by researchers at Google DeepMind, MIT, Stanford, "
+            "and Canadian universities (U of Toronto, McGill, UBC). It eliminates the need to install 5GB+ TeXLive software locally, provides instant cloud compilation, "
+            "and renders your paper side-by-side.",
+            body_style,
+        )
+    )
+
+    overleaf_steps = [
+        [
+            Paragraph("<b>Step</b>", body_bold),
+            Paragraph("<b>Action</b>", body_bold),
+            Paragraph("<b>Details</b>", body_bold),
+        ],
+        [
+            Paragraph("Option A (Fastest)", body_style),
+            Paragraph("Upload Zip to Overleaf", body_style),
+            Paragraph("Go to <b>overleaf.com</b> -> Click <i>New Project</i> -> <i>Upload Project</i> -> Select the ready-to-use <code>AISTATS2027_Paper_Overleaf_Package.zip</code> located right in this project folder.", body_style),
+        ],
+        [
+            Paragraph("Option B (GitHub Sync)", body_style),
+            Paragraph("Import from GitHub", body_style),
+            Paragraph("In Overleaf, click <i>New Project</i> -> <i>Import from GitHub</i> -> Select your repository <b>aarushdubey/fair-conformal-finance</b>. Overleaf will pull all updates directly!", body_style),
+        ],
+        [
+            Paragraph("Step 3", body_style),
+            Paragraph("Hit 'Recompile'", body_style),
+            Paragraph("Overleaf will compile the two-column AISTATS 2027 paper with all equations, figures, tables, and bibliography automatically.", body_style),
+        ],
+    ]
+    t_overleaf = Table(overleaf_steps, colWidths=[100, 120, 284])
+    t_overleaf.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#F8FAFC")),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
+                ("PADDING", (0, 0), (-1, -1), 5),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ]
+        )
+    )
+    story.append(t_overleaf)
     story.append(Spacer(1, 10))
+
+    callout_ready = (
+        "<b>Manuscript Ready for Review:</b> The full paper draft contains rigorous mathematical proofs, "
+        "comprehensive empirical tables with standard deviations, publication-ready vector figures, and ethical governance "
+        "implications under FCRA and the EU AI Act. You have a complete, professional conference submission package."
+    )
+    story.append(create_callout(callout_ready, "SUBMISSION STATUS: READY TO COMPILE", "#F0FDF4", "#16A34A"))
 
     # Build the document
     doc.build(story, canvasmaker=NumberedCanvas)

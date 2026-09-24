@@ -75,8 +75,8 @@ fair-conformal-finance/
 | **Phase 2** | Verification & Smoke Test | **COMPLETED** | Full pipeline verified in `tests/test_pipeline.py` |
 | **Phase 3** | Benchmark Experiments | **COMPLETED** | Full 9 configurations across German, Taiwan, Adult; all results in `results/tables/all_results.json` |
 | **Phase 3** | Results Visualization | **COMPLETED** | Generated Pareto frontiers and disparity comparison charts in `results/figures/` |
-| **Phase 4** | Paper Manuscript Draft | **IN PROGRESS** | Initializing LaTeX template and drafting Sections 1–6 in `paper/main.tex` |
-| **Phase 5** | Humanization & Originality | **PENDING** | Turnitin & AI-detector pass, academic tone review |
+| **Phase 4** | Paper Manuscript Draft | **COMPLETED** | Complete 6-section LaTeX manuscript in `paper/main.tex`, `references.bib`, and Overleaf zip |
+| **Phase 5** | Humanization & Originality | **IN PROGRESS** | Turnitin & AI-detector pass, academic tone review, Overleaf compilation |
 
 ---
 
