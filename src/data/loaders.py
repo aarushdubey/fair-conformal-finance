@@ -78,12 +78,13 @@ def load_german_credit(sensitive="age") -> Dict[str, Any]:
         gender_col = _find_column(X_df, ["personal_status", "Attribute9"])
         if gender_col is not None:
             # Personal status encodes gender + marital status
-            vals = X_df[gender_col].astype(str)
-            sens = np.where(
-                vals.str.contains("male", case=False, na=False), "male", "female"
-            )
+            # UCI codes: A91=male, A92=female, A93=male, A94=male, A95=female
+            vals = X_df[gender_col].astype(str).str.strip()
+            is_female_code = vals.isin(["A92", "A95"])
+            is_female_text = vals.str.contains("female", case=False, na=False)
+            sens = np.where(is_female_code | is_female_text, "female", "male")
         else:
-            sens = np.random.choice(["male", "female"], size=len(y), p=[0.6, 0.4])
+            sens = np.random.choice(["male", "female"], size=len(y), p=[0.69, 0.31])
     else:
         raise ValueError(f"Unknown sensitive attribute: {sensitive}")
 

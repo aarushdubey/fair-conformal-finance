@@ -70,10 +70,10 @@ fair-conformal-finance/
 | **Phase 1** | Project Scaffolding | **COMPLETED** | Package structure, configs, licenses created |
 | **Phase 1** | Core Modules Implementation | **COMPLETED** | `conformal`, `data`, `fairness`, `models`, `utils` written |
 | **Phase 1** | Local Git Repository | **COMPLETED** | Initialized on branch `main` with clean commit |
-| **Phase 2** | Remote GitHub Sync | **IN PROGRESS** | Connect local repo to `github.com/aarushdubey` via GitHub CLI |
-| **Phase 2** | Dependencies Setup | **PENDING** | Install numpy, pandas, scikit-learn, xgboost, lightgbm |
-| **Phase 2** | Verification & Smoke Test | **PENDING** | Run end-to-end trial on German Credit dataset |
-| **Phase 3** | Benchmark Experiments | **PENDING** | Run full trials across German Credit, Taiwan Credit, Adult |
+| **Phase 2** | Remote GitHub Sync | **COMPLETED** | Connected and pushed to `aarushdubey/fair-conformal-finance` |
+| **Phase 2** | Dependencies Setup | **COMPLETED** | Virtual environment configured with scikit-learn, xgboost, lightgbm |
+| **Phase 2** | Verification & Smoke Test | **COMPLETED** | Full pipeline verified in `tests/test_pipeline.py` |
+| **Phase 3** | Benchmark Experiments | **IN PROGRESS** | German Credit RF completed; expanding to XGBoost, LightGBM, Taiwan Credit |
 | **Phase 3** | Results Visualization | **PENDING** | Generate publication-ready Pareto plots & LaTeX tables |
 | **Phase 4** | Paper Manuscript Draft | **PENDING** | Write Sections 1–6 in LaTeX using AISTATS template |
 | **Phase 5** | Humanization & Originality | **PENDING** | Turnitin & AI-detector pass, academic tone review |

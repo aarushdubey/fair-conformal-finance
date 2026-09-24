@@ -192,6 +192,10 @@ class FairTransCP:
 
         return prediction_sets
 
+    def predict(self, prob_matrix, sensitive_attr):
+        """Alias for predict_sets to maintain familiar scikit-learn style interface."""
+        return self.predict_sets(prob_matrix, sensitive_attr)
+
     def get_diagnostics(self):
         """
         Return a summary of calibration state for debugging.

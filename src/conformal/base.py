@@ -125,6 +125,10 @@ class SplitConformalClassifier:
 
         return prediction_sets
 
+    def predict(self, prob_matrix):
+        """Alias for predict_sets to maintain familiar scikit-learn style interface."""
+        return self.predict_sets(prob_matrix)
+
     def _compute_scores(self, prob_matrix, y_true):
         """Compute nonconformity scores for labeled examples."""
         if self.score_fn == "softmax":
