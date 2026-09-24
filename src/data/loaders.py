@@ -189,10 +189,8 @@ def load_adult_income(sensitive="gender") -> Dict[str, Any]:
         return _synthetic_fallback("adult_income", sensitive)
 
     # Binary label: <=50K -> 0, >50K -> 1
-    y_raw = y_series.values.ravel().astype(str)
-    y = np.where(
-        np.char.find(y_raw.astype(str), ">50K") >= 0, 1, 0
-    )
+    y_str = y_series.astype(str).str.strip()
+    y = np.where(y_str.str.contains(">50K"), 1, 0)
 
     if sensitive == "gender":
         sex_col = _find_column(X_df, ["sex", "Sex", "gender"])
