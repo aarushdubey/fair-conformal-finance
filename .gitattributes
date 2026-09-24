@@ -1,0 +1,5 @@
+# Override language detection for GitHub Linguist
+*.tex linguist-vendored
+*.sty linguist-vendored
+*.bib linguist-vendored
+*.json linguist-generated
