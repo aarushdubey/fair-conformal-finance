@@ -1,0 +1,33 @@
+{
+  "summary": {
+    "Standard CP": {
+      "marginal_coverage": "0.9481 +/- 0.0033",
+      "worst_group_coverage": "0.9446 +/- 0.0022",
+      "avg_set_size": "1.6476 +/- 0.0024",
+      "set_size_disparity": "1.0174 +/- 0.0097"
+    },
+    "Group-Conditional CP": {
+      "marginal_coverage": "0.9481 +/- 0.0033",
+      "worst_group_coverage": "0.9446 +/- 0.0022",
+      "avg_set_size": "1.6476 +/- 0.0024",
+      "set_size_disparity": "1.0174 +/- 0.0097"
+    },
+    "FairTransCP (Ours)": {
+      "marginal_coverage": "0.9481 +/- 0.0033",
+      "worst_group_coverage": "0.9446 +/- 0.0022",
+      "avg_set_size": "1.6476 +/- 0.0024",
+      "set_size_disparity": "1.0174 +/- 0.0097"
+    }
+  },
+  "config": {
+    "dataset": "taiwan_credit",
+    "model": "xgboost",
+    "alpha": 0.1,
+    "score_fn": "aps",
+    "sensitive": "gender",
+    "fairness_weight": 0.4,
+    "n_trials": 5,
+    "test_size": 0.2,
+    "cal_fraction": 0.3
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "summary": {
+    "Standard CP": {
+      "marginal_coverage": "0.9600 +/- 0.0100",
+      "worst_group_coverage": "0.9475 +/- 0.0100",
+      "avg_set_size": "1.9280 +/- 0.0186",
+      "set_size_disparity": "1.0444 +/- 0.0129"
+    },
+    "Group-Conditional CP": {
+      "marginal_coverage": "0.9640 +/- 0.0116",
+      "worst_group_coverage": "0.9591 +/- 0.0097",
+      "avg_set_size": "1.9410 +/- 0.0224",
+      "set_size_disparity": "1.0205 +/- 0.0124"
+    },
+    "FairTransCP (Ours)": {
+      "marginal_coverage": "0.9610 +/- 0.0116",
+      "worst_group_coverage": "0.9534 +/- 0.0128",
+      "avg_set_size": "1.9350 +/- 0.0232",
+      "set_size_disparity": "1.0217 +/- 0.0179"
+    }
+  },
+  "config": {
+    "dataset": "german_credit",
+    "model": "xgboost",
+    "alpha": 0.1,
+    "score_fn": "aps",
+    "sensitive": "age",
+    "fairness_weight": 0.4,
+    "n_trials": 5,
+    "test_size": 0.2,
+    "cal_fraction": 0.3
+  }
+}

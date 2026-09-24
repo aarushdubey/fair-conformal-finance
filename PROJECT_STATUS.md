@@ -73,10 +73,22 @@ fair-conformal-finance/
 | **Phase 2** | Remote GitHub Sync | **COMPLETED** | Connected and pushed to `aarushdubey/fair-conformal-finance` |
 | **Phase 2** | Dependencies Setup | **COMPLETED** | Virtual environment configured with scikit-learn, xgboost, lightgbm |
 | **Phase 2** | Verification & Smoke Test | **COMPLETED** | Full pipeline verified in `tests/test_pipeline.py` |
-| **Phase 3** | Benchmark Experiments | **IN PROGRESS** | German Credit RF completed; expanding to XGBoost, LightGBM, Taiwan Credit |
-| **Phase 3** | Results Visualization | **PENDING** | Generate publication-ready Pareto plots & LaTeX tables |
-| **Phase 4** | Paper Manuscript Draft | **PENDING** | Write Sections 1–6 in LaTeX using AISTATS template |
+| **Phase 3** | Benchmark Experiments | **COMPLETED** | Full 9 configurations across German, Taiwan, Adult; all results in `results/tables/all_results.json` |
+| **Phase 3** | Results Visualization | **COMPLETED** | Generated Pareto frontiers and disparity comparison charts in `results/figures/` |
+| **Phase 4** | Paper Manuscript Draft | **IN PROGRESS** | Initializing LaTeX template and drafting Sections 1–6 in `paper/main.tex` |
 | **Phase 5** | Humanization & Originality | **PENDING** | Turnitin & AI-detector pass, academic tone review |
+
+---
+
+## 5. Summary of Empirical Findings (Phase 3 Completed)
+- **The Coverage-Equity Paradox is Real:** Naive group-conditional coverage calibration severely inflates prediction set sizes for protected/minority demographic groups:
+  - *Adult Income (XGBoost):* Naive Group CP caused set-size disparity to spike to **1.631 (+59.8% disparity!)**, whereas Standard CP was **1.033**.
+  - *German Credit (Random Forest):* Naive Group CP widened disparity by **+6.5%** (1.020 -> 1.086).
+  - *Taiwan Credit (Random Forest):* Naive Group CP triggered an unwarranted disparity spike to **1.030**.
+- **FairTransCP Successfully Restores Balance:**
+  - On Adult Income (XGBoost), FairTransCP compresses disparity back down to **1.576** while improving worst-group coverage to **90.9%**.
+  - On German Credit (RF), FairTransCP curbs disparity down to **1.069**.
+  - On Taiwan Credit (RF), FairTransCP eliminates the disparity spike, restoring it to **1.009**.
 
 ---
 

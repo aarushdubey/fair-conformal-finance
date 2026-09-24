@@ -1,0 +1,33 @@
+{
+  "summary": {
+    "Standard CP": {
+      "marginal_coverage": "0.9604 +/- 0.0017",
+      "worst_group_coverage": "0.9506 +/- 0.0011",
+      "avg_set_size": "1.6607 +/- 0.0019",
+      "set_size_disparity": "1.0330 +/- 0.0032"
+    },
+    "Group-Conditional CP": {
+      "marginal_coverage": "0.9364 +/- 0.0010",
+      "worst_group_coverage": "0.9080 +/- 0.0024",
+      "avg_set_size": "1.4629 +/- 0.0153",
+      "set_size_disparity": "1.6313 +/- 0.0562"
+    },
+    "FairTransCP (Ours)": {
+      "marginal_coverage": "0.9367 +/- 0.0012",
+      "worst_group_coverage": "0.9087 +/- 0.0034",
+      "avg_set_size": "1.4767 +/- 0.0321",
+      "set_size_disparity": "1.5758 +/- 0.1242"
+    }
+  },
+  "config": {
+    "dataset": "adult_income",
+    "model": "xgboost",
+    "alpha": 0.1,
+    "score_fn": "aps",
+    "sensitive": "gender",
+    "fairness_weight": 0.4,
+    "n_trials": 5,
+    "test_size": 0.2,
+    "cal_fraction": 0.3
+  }
+}
