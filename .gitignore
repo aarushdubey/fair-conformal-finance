@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data files (downloaded at runtime)
+data/raw/
+data/processed/
+*.csv
+*.xlsx
+*.parquet
+
+# Results (large files — regenerate with scripts)
+results/figures/*.png
+results/figures/*.pdf
+results/tables/*.tex
+results/tables/*.csv
+!results/figures/.gitkeep
+!results/tables/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+wandb/
