@@ -56,26 +56,35 @@ def plot_disparity_comparison():
         ("adult_income_xgboost", "Adult Income (XGBoost)"),
     ]
 
+    alpha_key = "alpha_0.1" # Use 0.1 as representative
+
     labels = []
     std_vals = []
-    grp_vals = []
+    mon_vals = []
+    lcc_vals = []
+    gen_vals = []
     fair_vals = []
 
     for key, label in configs:
-        if key in data:
+        if key in data and alpha_key in data[key]:
+            res = data[key][alpha_key]
             labels.append(label)
-            std_vals.append(parse_val(data[key]["Standard CP"]["set_size_disparity"]))
-            grp_vals.append(parse_val(data[key]["Group-Conditional CP"]["set_size_disparity"]))
-            fair_vals.append(parse_val(data[key]["FairTransCP (Ours)"]["set_size_disparity"]))
+            std_vals.append(parse_val(res.get("Standard CP", {}).get("set_size_disparity", "1.0")))
+            mon_vals.append(parse_val(res.get("Mondrian CP", {}).get("set_size_disparity", "1.0")))
+            lcc_vals.append(parse_val(res.get("LC-CP", {}).get("set_size_disparity", "1.0")))
+            gen_vals.append(parse_val(res.get("Generic Fair CP", {}).get("set_size_disparity", "1.0")))
+            fair_vals.append(parse_val(res.get("FairTransCP (Ours)", {}).get("set_size_disparity", "1.0")))
 
     x = np.arange(len(labels))
-    width = 0.25
+    width = 0.15
 
-    fig, ax = plt.subplots(figsize=(9, 5), dpi=300)
+    fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
 
-    rects1 = ax.bar(x - width, std_vals, width, label="Standard CP (Marginal)", color="#94A3B8", edgecolor="#475569")
-    rects2 = ax.bar(x, grp_vals, width, label="Group-Conditional CP (Equalized)", color="#EF4444", edgecolor="#B91C1C")
-    rects3 = ax.bar(x + width, fair_vals, width, label="FairTransCP (Ours: Balanced)", color="#2563EB", edgecolor="#1D4ED8")
+    ax.bar(x - 2*width, std_vals, width, label="Standard CP", color="#94A3B8", edgecolor="#475569")
+    ax.bar(x - width, mon_vals, width, label="Mondrian CP", color="#EF4444", edgecolor="#B91C1C")
+    ax.bar(x, lcc_vals, width, label="LC-CP", color="#F59E0B", edgecolor="#B45309")
+    ax.bar(x + width, gen_vals, width, label="Generic Fair CP", color="#10B981", edgecolor="#047857")
+    ax.bar(x + 2*width, fair_vals, width, label="FairTransCP (Ours)", color="#2563EB", edgecolor="#1D4ED8")
 
     ax.set_ylabel("Set-Size Disparity Ratio (1.0 = Perfect Equity)", fontweight="bold")
     ax.set_title("Empirical Demonstration of the Coverage-Equity Trap in Financial Benchmarks", fontweight="bold", pad=12)
@@ -86,11 +95,11 @@ def plot_disparity_comparison():
 
     # Add annotations for the disparity spike
     for i in range(len(labels)):
-        diff = ((grp_vals[i] - std_vals[i]) / std_vals[i]) * 100
+        diff = ((mon_vals[i] - std_vals[i]) / std_vals[i]) * 100
         if diff > 1.0:
             ax.annotate(
                 f"+{diff:.1f}% disparity",
-                xy=(x[i], grp_vals[i]),
+                xy=(x[i], mon_vals[i]),
                 xytext=(0, 5),
                 textcoords="offset points",
                 ha="center",
@@ -127,31 +136,44 @@ def plot_pareto_frontier():
         "adult_income_xgboost": "Adult (XGB)",
     }
 
-    for key, name in names.items():
-        if key not in data:
-            continue
-        m = markers[key]
-        
-        # Standard CP
-        cov_std = parse_val(data[key]["Standard CP"]["worst_group_coverage"])
-        disp_std = parse_val(data[key]["Standard CP"]["set_size_disparity"])
-        ax.scatter(cov_std, disp_std, color="#94A3B8", marker=m, s=90, label=f"Standard CP ({name})" if key == "german_credit_rf" else "")
+    alpha_key = "alpha_0.1"
 
-        # Group CP
-        cov_grp = parse_val(data[key]["Group-Conditional CP"]["worst_group_coverage"])
-        disp_grp = parse_val(data[key]["Group-Conditional CP"]["set_size_disparity"])
-        ax.scatter(cov_grp, disp_grp, color="#EF4444", marker=m, s=90, label=f"Group CP ({name})" if key == "german_credit_rf" else "")
+    for key, name in names.items():
+        if key not in data or alpha_key not in data[key]:
+            continue
+        res = data[key][alpha_key]
+        m = markers[key]
+
+        # Standard CP
+        cov_std = parse_val(res.get("Standard CP", {}).get("worst_group_coverage", "0.0"))
+        disp_std = parse_val(res.get("Standard CP", {}).get("set_size_disparity", "1.0"))
+        ax.scatter(cov_std, disp_std, color="#94A3B8", marker=m, s=70, label=f"Standard CP ({name})" if key == "german_credit_rf" else "")
+
+        # Mondrian CP
+        cov_mon = parse_val(res.get("Mondrian CP", {}).get("worst_group_coverage", "0.0"))
+        disp_mon = parse_val(res.get("Mondrian CP", {}).get("set_size_disparity", "1.0"))
+        ax.scatter(cov_mon, disp_mon, color="#EF4444", marker=m, s=70, label=f"Mondrian CP ({name})" if key == "german_credit_rf" else "")
+
+        # LC-CP
+        cov_lcc = parse_val(res.get("LC-CP", {}).get("worst_group_coverage", "0.0"))
+        disp_lcc = parse_val(res.get("LC-CP", {}).get("set_size_disparity", "1.0"))
+        ax.scatter(cov_lcc, disp_lcc, color="#F59E0B", marker=m, s=70, label=f"LC-CP ({name})" if key == "german_credit_rf" else "")
+
+        # Generic Fair CP
+        cov_gen = parse_val(res.get("Generic Fair CP", {}).get("worst_group_coverage", "0.0"))
+        disp_gen = parse_val(res.get("Generic Fair CP", {}).get("set_size_disparity", "1.0"))
+        ax.scatter(cov_gen, disp_gen, color="#10B981", marker=m, s=70, label=f"Generic Fair CP ({name})" if key == "german_credit_rf" else "")
 
         # FairTransCP
-        cov_fair = parse_val(data[key]["FairTransCP (Ours)"]["worst_group_coverage"])
-        disp_fair = parse_val(data[key]["FairTransCP (Ours)"]["set_size_disparity"])
+        cov_fair = parse_val(res.get("FairTransCP (Ours)", {}).get("worst_group_coverage", "0.0"))
+        disp_fair = parse_val(res.get("FairTransCP (Ours)", {}).get("set_size_disparity", "1.0"))
         ax.scatter(cov_fair, disp_fair, color="#2563EB", marker=m, s=110, label=f"FairTransCP ({name})" if key == "german_credit_rf" else "")
 
-        # Draw trajectory arrow from Group CP to FairTransCP
+        # Draw trajectory arrow from Mondrian CP to FairTransCP
         ax.annotate(
             "",
             xy=(cov_fair, disp_fair),
-            xytext=(cov_grp, disp_grp),
+            xytext=(cov_mon, disp_mon),
             arrowprops=dict(arrowstyle="->", color="#2563EB", lw=1.2, ls="--"),
         )
         ax.text(cov_fair + 0.001, disp_fair, name, fontsize=8, color="#1E293B")

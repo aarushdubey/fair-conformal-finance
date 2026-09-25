@@ -1,10 +1,8 @@
 """
 Evaluation pipeline for running experiments end-to-end.
 
-This ties together the data loading, model training, conformal
-calibration, and fairness evaluation into a single function call.
-The idea is that experiment scripts should be short and readable,
-with all the plumbing hidden here.
+Ties together data loading, model training, conformal calibration
+across multiple SOTA baselines and FairTransCP, and fairness evaluation.
 """
 
 import numpy as np
@@ -15,6 +13,7 @@ from ..data.loaders import load_dataset
 from ..models.classifiers import get_classifier
 from ..conformal.base import SplitConformalClassifier
 from ..conformal.fair_conformal import FairTransCP
+from ..conformal.baselines import MondrianCP, LCCP, GenericFairCP
 from ..fairness.metrics import compute_all_metrics
 
 
@@ -29,55 +28,24 @@ def run_experiment(
     cal_fraction: float = 0.3,
     random_state: int = 42,
     n_trials: int = 10,
+    optimize_lambda: bool = True,
 ) -> Dict[str, Any]:
     """
-    Run a complete experiment and return all metrics.
+    Run a complete experiment across all conformal methods and return metrics.
 
     The data is split three ways:
         train (for fitting the base model)
         calibration (for conformal calibration)
         test (for evaluation)
-
-    We run multiple trials with different random splits to get
-    error bars (important for small datasets like German Credit).
-
-    Parameters
-    ----------
-    dataset_name : str
-        Which dataset to use.
-    model_name : str
-        Which base classifier ('rf', 'xgboost', 'lightgbm').
-    alpha : float
-        Miscoverage rate.
-    score_fn : str
-        Nonconformity score function.
-    sensitive : str
-        Which sensitive attribute to use.
-    fairness_weight : float
-        Trade-off parameter for FairTransCP.
-    test_size : float
-        Fraction held out for testing.
-    cal_fraction : float
-        Fraction of the remaining data used for calibration
-        (the rest is for training the base model).
-    random_state : int
-        Base random seed. Each trial uses random_state + trial_idx.
-    n_trials : int
-        How many random splits to average over.
-
-    Returns
-    -------
-    dict with keys:
-        'baseline_metrics': list of metric dicts (one per trial)
-        'group_cp_metrics': list of metric dicts
-        'fairtranscp_metrics': list of metric dicts
-        'config': experiment configuration
     """
-    # Load the dataset once
+    # Load dataset
     data = load_dataset(dataset_name, sensitive=sensitive)
     X, y, sens = data["X"], data["y"], data["sensitive"]
 
     baseline_results = []
+    mondrian_results = []
+    lccp_results = []
+    generic_fair_results = []
     group_cp_results = []
     fair_results = []
 
@@ -99,15 +67,15 @@ def run_experiment(
             stratify=y_trainval,
         )
 
-        # Fit the base model on training data only
+        # Fit base model
         clf = get_classifier(model_name, random_state=seed)
         clf.fit(X_train, y_train)
 
-        # Get probability estimates
+        # Predicted probabilities
         prob_cal = clf.predict_proba(X_cal)
         prob_test = clf.predict_proba(X_test)
 
-        # ── Method 1: Standard (marginal) conformal prediction ──
+        # 1. Standard (marginal) CP
         standard_cp = SplitConformalClassifier(
             alpha=alpha, score_fn=score_fn, random_state=seed
         )
@@ -117,13 +85,41 @@ def run_experiment(
             compute_all_metrics(sets_baseline, y_test, s_test)
         )
 
-        # ── Method 2: Group-conditional CP (equalized coverage) ──
-        # This is the Romano et al. baseline where we calibrate
-        # separately per group. Pure coverage equalization.
+        # 2. Mondrian CP
+        mondrian_cp = MondrianCP(
+            alpha=alpha, score_fn=score_fn, random_state=seed
+        )
+        mondrian_cp.calibrate(prob_cal, y_cal, s_cal)
+        sets_mondrian = mondrian_cp.predict_sets(prob_test, s_test)
+        mondrian_results.append(
+            compute_all_metrics(sets_mondrian, y_test, s_test)
+        )
+
+        # 3. LC-CP (Label-Clustered CP)
+        lccp = LCCP(
+            alpha=alpha, score_fn=score_fn, random_state=seed
+        )
+        lccp.calibrate(prob_cal, y_cal, s_cal)
+        sets_lccp = lccp.predict_sets(prob_test, s_test)
+        lccp_results.append(
+            compute_all_metrics(sets_lccp, y_test, s_test)
+        )
+
+        # 4. Generic Fair CP
+        generic_fair = GenericFairCP(
+            alpha=alpha, score_fn=score_fn, random_state=seed
+        )
+        generic_fair.calibrate(prob_cal, y_cal, s_cal)
+        sets_generic = generic_fair.predict_sets(prob_test, s_test)
+        generic_fair_results.append(
+            compute_all_metrics(sets_generic, y_test, s_test)
+        )
+
+        # 5. Group-conditional CP
         group_cp = FairTransCP(
             alpha=alpha,
             score_fn=score_fn,
-            fairness_weight=0.0,  # Pure coverage equalization
+            fairness_weight=0.0,
             random_state=seed,
         )
         group_cp.calibrate(prob_cal, y_cal, s_cal)
@@ -132,12 +128,13 @@ def run_experiment(
             compute_all_metrics(sets_group, y_test, s_test)
         )
 
-        # ── Method 3: FairTransCP (our method) ──
+        # 6. FairTransCP (Ours)
         fair_cp = FairTransCP(
             alpha=alpha,
             score_fn=score_fn,
             fairness_weight=fairness_weight,
             random_state=seed,
+            optimize_lambda=optimize_lambda,
         )
         fair_cp.calibrate(prob_cal, y_cal, s_cal)
         sets_fair = fair_cp.predict_sets(prob_test, s_test)
@@ -147,6 +144,9 @@ def run_experiment(
 
     return {
         "baseline_metrics": baseline_results,
+        "mondrian_metrics": mondrian_results,
+        "lccp_metrics": lccp_results,
+        "generic_fair_metrics": generic_fair_results,
         "group_cp_metrics": group_cp_results,
         "fairtranscp_metrics": fair_results,
         "config": {
@@ -165,33 +165,37 @@ def run_experiment(
 
 def summarize_results(results: Dict[str, Any]) -> Dict[str, Dict[str, str]]:
     """
-    Aggregate trial results into mean +/- std format.
-
-    Returns a dict of {method_name: {metric: "mean +/- std"}} that's
-    ready to be printed as a table in the paper.
+    Summarize multiple trials into mean +/- std for key metrics.
     """
     summary = {}
+    methods = {
+        "Standard CP": results["baseline_metrics"],
+        "Mondrian CP": results.get("mondrian_metrics", []),
+        "LC-CP": results.get("lccp_metrics", []),
+        "Generic Fair CP": results.get("generic_fair_metrics", []),
+        "Group-Conditional CP": results["group_cp_metrics"],
+        "FairTransCP (Ours)": results["fairtranscp_metrics"],
+    }
 
-    for method_key, method_name in [
-        ("baseline_metrics", "Standard CP"),
-        ("group_cp_metrics", "Group-Conditional CP"),
-        ("fairtranscp_metrics", "FairTransCP (Ours)"),
-    ]:
-        trial_metrics = results[method_key]
-        # Collect all metric keys from the first trial
-        metric_keys = [
-            k
-            for k in trial_metrics[0].keys()
-            if not k.startswith("coverage_") and not k.startswith("avg_size_")
-        ]
+    metrics_to_report = [
+        "marginal_coverage",
+        "worst_group_coverage",
+        "avg_set_size",
+        "set_size_disparity",
+    ]
 
+    for method_name, metric_list in methods.items():
+        if not metric_list:
+            continue
         method_summary = {}
-        for key in metric_keys:
-            values = [t[key] for t in trial_metrics if key in t]
-            mean = np.mean(values)
-            std = np.std(values)
-            method_summary[key] = f"{mean:.4f} +/- {std:.4f}"
-
+        for m in metrics_to_report:
+            vals = [t[m] for t in metric_list if m in t and t[m] is not None]
+            if vals:
+                mean = np.mean(vals)
+                std = np.std(vals)
+                method_summary[m] = f"{mean:.4f} +/- {std:.4f}"
+            else:
+                method_summary[m] = "N/A"
         summary[method_name] = method_summary
 
     return summary

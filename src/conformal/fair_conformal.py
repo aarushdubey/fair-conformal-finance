@@ -56,11 +56,15 @@ class FairTransCP:
         score_fn="aps",
         fairness_weight=0.4,
         random_state=42,
+        optimize_lambda=False,
+        beta=0.1,
     ):
         self.alpha = alpha
         self.score_fn = score_fn
         self.fairness_weight = fairness_weight
         self.random_state = random_state
+        self.optimize_lambda = optimize_lambda
+        self.beta = beta
 
         # Per-group calibration state
         self._group_quantiles = {}
@@ -110,10 +114,67 @@ class FairTransCP:
         # Step 2: Also calibrate the baseline (marginal) CP
         self._base_cp.calibrate(prob_matrix, y_true)
 
-        # Step 3: Adjust quantiles to balance coverage + set-size equity
+        # Step 3: Optimize lambda trade-off if requested
+        if self.optimize_lambda:
+            self.fairness_weight = self._optimize_lambda(prob_matrix, y_true, sensitive_attr)
+
+        # Step 4: Adjust quantiles to balance coverage + set-size equity
         self._adjusted_quantiles = self._optimize_quantiles(
             prob_matrix, y_true, sensitive_attr
         )
+
+    def _optimize_lambda(self, prob_matrix, y_true, sensitive_attr) -> float:
+        """
+        Find optimal lambda in [0, 1] minimizing joint loss of coverage gap
+        and set-size disparity subject to worst-group coverage constraints.
+        """
+        groups = np.unique(sensitive_attr)
+        lambdas = np.linspace(0, 1, 21)
+        best_lam = float(self.fairness_weight)
+        min_loss = float('inf')
+        marginal_q = self._base_cp.threshold
+
+        for lam in lambdas:
+            adjusted = {}
+            for g in groups:
+                adjusted[g] = (1 - lam) * self._group_quantiles[g] + lam * marginal_q
+
+            group_covs = []
+            group_sizes = []
+            for g in groups:
+                mask = (sensitive_attr == g)
+                g_probs = prob_matrix[mask]
+                scores = self._group_scores[g]
+                thresh = adjusted[g]
+
+                cov = np.mean(scores <= thresh)
+                group_covs.append(cov)
+
+                sample_size = min(100, len(g_probs))
+                if sample_size > 0:
+                    sample_indices = np.random.choice(len(g_probs), sample_size, replace=False)
+                    sizes = []
+                    for idx in sample_indices:
+                        count = 0
+                        for k in range(self._n_classes):
+                            if self._base_cp._compute_score_for_label(g_probs[idx], k) <= thresh:
+                                count += 1
+                        sizes.append(count)
+                    group_sizes.append(np.mean(sizes))
+                else:
+                    group_sizes.append(1.0)
+
+            gap = max(group_covs) - min(group_covs)
+            disparity = max(group_sizes) / (min(group_sizes) + 1e-6)
+            loss = gap + self.beta * disparity
+
+            # Require worst-group coverage to remain within epsilon of nominal
+            if min(group_covs) >= (1 - self.alpha - 0.05):
+                if loss < min_loss:
+                    min_loss = loss
+                    best_lam = float(lam)
+
+        return best_lam
 
     def _optimize_quantiles(self, prob_matrix, y_true, sensitive_attr):
         """
@@ -122,10 +183,6 @@ class FairTransCP:
         We interpolate between group-specific quantiles (pure coverage
         equity) and the marginal quantile (which tends to equalize set
         sizes) based on self.fairness_weight.
-
-        This is a simplified version — a more sophisticated approach
-        could use proper constrained optimization, but the grid search
-        is transparent and easier to analyze theoretically.
         """
         groups = np.unique(sensitive_attr)
         marginal_q = self._base_cp.threshold
@@ -134,10 +191,6 @@ class FairTransCP:
         adjusted = {}
         for g in groups:
             group_q = self._group_quantiles[g]
-
-            # Weighted interpolation between group-specific and marginal
-            # When lam=0 we get pure group-specific (equalized coverage)
-            # When lam=1 we get marginal (tends to equalize set sizes)
             adjusted[g] = (1 - lam) * group_q + lam * marginal_q
 
         return adjusted

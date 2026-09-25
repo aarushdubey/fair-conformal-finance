@@ -1,33 +1,161 @@
 {
-  "summary": {
-    "Standard CP": {
-      "marginal_coverage": "0.9208 +/- 0.0172",
-      "worst_group_coverage": "0.9170 +/- 0.0169",
-      "avg_set_size": "1.6728 +/- 0.0408",
-      "set_size_disparity": "1.0117 +/- 0.0116"
+  "results": {
+    "alpha_0.01": {
+      "Standard CP": {
+        "marginal_coverage": "0.9973 +/- 0.0003",
+        "worst_group_coverage": "0.9966 +/- 0.0002",
+        "avg_set_size": "1.9797 +/- 0.0116",
+        "set_size_disparity": "1.0038 +/- 0.0030"
+      },
+      "Mondrian CP": {
+        "marginal_coverage": "0.9963 +/- 0.0012",
+        "worst_group_coverage": "0.9940 +/- 0.0023",
+        "avg_set_size": "1.9769 +/- 0.0088",
+        "set_size_disparity": "1.0073 +/- 0.0005"
+      },
+      "LC-CP": {
+        "marginal_coverage": "0.9969 +/- 0.0007",
+        "worst_group_coverage": "0.9962 +/- 0.0002",
+        "avg_set_size": "1.9750 +/- 0.0068",
+        "set_size_disparity": "1.0040 +/- 0.0028"
+      },
+      "Generic Fair CP": {
+        "marginal_coverage": "1.0000 +/- 0.0000",
+        "worst_group_coverage": "1.0000 +/- 0.0000",
+        "avg_set_size": "1.9999 +/- 0.0001",
+        "set_size_disparity": "1.0000 +/- 0.0000"
+      },
+      "Group-Cond CP": {
+        "marginal_coverage": "0.9963 +/- 0.0012",
+        "worst_group_coverage": "0.9940 +/- 0.0023",
+        "avg_set_size": "1.9769 +/- 0.0088",
+        "set_size_disparity": "1.0073 +/- 0.0005"
+      },
+      "FairTransCP (Ours)": {
+        "marginal_coverage": "0.9973 +/- 0.0003",
+        "worst_group_coverage": "0.9966 +/- 0.0002",
+        "avg_set_size": "1.9797 +/- 0.0116",
+        "set_size_disparity": "1.0038 +/- 0.0030"
+      }
     },
-    "Group-Conditional CP": {
-      "marginal_coverage": "0.9259 +/- 0.0157",
-      "worst_group_coverage": "0.9196 +/- 0.0152",
-      "avg_set_size": "1.6940 +/- 0.0163",
-      "set_size_disparity": "1.0313 +/- 0.0350"
+    "alpha_0.05": {
+      "Standard CP": {
+        "marginal_coverage": "0.9682 +/- 0.0060",
+        "worst_group_coverage": "0.9660 +/- 0.0051",
+        "avg_set_size": "1.8611 +/- 0.0013",
+        "set_size_disparity": "1.0145 +/- 0.0048"
+      },
+      "Mondrian CP": {
+        "marginal_coverage": "0.9682 +/- 0.0060",
+        "worst_group_coverage": "0.9660 +/- 0.0051",
+        "avg_set_size": "1.8611 +/- 0.0013",
+        "set_size_disparity": "1.0145 +/- 0.0048"
+      },
+      "LC-CP": {
+        "marginal_coverage": "0.9651 +/- 0.0029",
+        "worst_group_coverage": "0.9636 +/- 0.0027",
+        "avg_set_size": "1.8111 +/- 0.0486",
+        "set_size_disparity": "1.0248 +/- 0.0150"
+      },
+      "Generic Fair CP": {
+        "marginal_coverage": "1.0000 +/- 0.0000",
+        "worst_group_coverage": "1.0000 +/- 0.0000",
+        "avg_set_size": "1.9995 +/- 0.0005",
+        "set_size_disparity": "1.0000 +/- 0.0000"
+      },
+      "Group-Cond CP": {
+        "marginal_coverage": "0.9682 +/- 0.0060",
+        "worst_group_coverage": "0.9660 +/- 0.0051",
+        "avg_set_size": "1.8611 +/- 0.0013",
+        "set_size_disparity": "1.0145 +/- 0.0048"
+      },
+      "FairTransCP (Ours)": {
+        "marginal_coverage": "0.9818 +/- 0.0076",
+        "worst_group_coverage": "0.9800 +/- 0.0089",
+        "avg_set_size": "1.9139 +/- 0.0515",
+        "set_size_disparity": "1.0116 +/- 0.0077"
+      }
     },
-    "FairTransCP (Ours)": {
-      "marginal_coverage": "0.9208 +/- 0.0172",
-      "worst_group_coverage": "0.9170 +/- 0.0169",
-      "avg_set_size": "1.6728 +/- 0.0408",
-      "set_size_disparity": "1.0117 +/- 0.0116"
+    "alpha_0.1": {
+      "Standard CP": {
+        "marginal_coverage": "0.9364 +/- 0.0086",
+        "worst_group_coverage": "0.9331 +/- 0.0100",
+        "avg_set_size": "1.7096 +/- 0.0037",
+        "set_size_disparity": "1.0203 +/- 0.0061"
+      },
+      "Mondrian CP": {
+        "marginal_coverage": "0.9364 +/- 0.0086",
+        "worst_group_coverage": "0.9331 +/- 0.0100",
+        "avg_set_size": "1.7096 +/- 0.0037",
+        "set_size_disparity": "1.0203 +/- 0.0061"
+      },
+      "LC-CP": {
+        "marginal_coverage": "0.9364 +/- 0.0086",
+        "worst_group_coverage": "0.9331 +/- 0.0100",
+        "avg_set_size": "1.7096 +/- 0.0037",
+        "set_size_disparity": "1.0203 +/- 0.0061"
+      },
+      "Generic Fair CP": {
+        "marginal_coverage": "1.0000 +/- 0.0000",
+        "worst_group_coverage": "1.0000 +/- 0.0000",
+        "avg_set_size": "2.0000 +/- 0.0000",
+        "set_size_disparity": "1.0000 +/- 0.0000"
+      },
+      "Group-Cond CP": {
+        "marginal_coverage": "0.9364 +/- 0.0086",
+        "worst_group_coverage": "0.9331 +/- 0.0100",
+        "avg_set_size": "1.7096 +/- 0.0037",
+        "set_size_disparity": "1.0203 +/- 0.0061"
+      },
+      "FairTransCP (Ours)": {
+        "marginal_coverage": "0.9364 +/- 0.0086",
+        "worst_group_coverage": "0.9331 +/- 0.0100",
+        "avg_set_size": "1.7096 +/- 0.0037",
+        "set_size_disparity": "1.0203 +/- 0.0061"
+      }
+    },
+    "alpha_0.2": {
+      "Standard CP": {
+        "marginal_coverage": "0.8057 +/- 0.0031",
+        "worst_group_coverage": "0.7929 +/- 0.0032",
+        "avg_set_size": "1.1413 +/- 0.0148",
+        "set_size_disparity": "1.0070 +/- 0.0038"
+      },
+      "Mondrian CP": {
+        "marginal_coverage": "0.8058 +/- 0.0058",
+        "worst_group_coverage": "0.8036 +/- 0.0069",
+        "avg_set_size": "1.1304 +/- 0.0049",
+        "set_size_disparity": "1.1960 +/- 0.0068"
+      },
+      "LC-CP": {
+        "marginal_coverage": "0.8089 +/- 0.0067",
+        "worst_group_coverage": "0.8000 +/- 0.0071",
+        "avg_set_size": "1.2651 +/- 0.0071",
+        "set_size_disparity": "1.0346 +/- 0.0092"
+      },
+      "Generic Fair CP": {
+        "marginal_coverage": "1.0000 +/- 0.0000",
+        "worst_group_coverage": "1.0000 +/- 0.0000",
+        "avg_set_size": "2.0000 +/- 0.0000",
+        "set_size_disparity": "1.0000 +/- 0.0000"
+      },
+      "Group-Cond CP": {
+        "marginal_coverage": "0.8058 +/- 0.0058",
+        "worst_group_coverage": "0.8036 +/- 0.0069",
+        "avg_set_size": "1.1304 +/- 0.0049",
+        "set_size_disparity": "1.1960 +/- 0.0068"
+      },
+      "FairTransCP (Ours)": {
+        "marginal_coverage": "0.8058 +/- 0.0058",
+        "worst_group_coverage": "0.8036 +/- 0.0069",
+        "avg_set_size": "1.1304 +/- 0.0049",
+        "set_size_disparity": "1.1960 +/- 0.0068"
+      }
     }
   },
   "config": {
-    "dataset": "adult_income",
-    "model": "rf",
-    "alpha": 0.1,
-    "score_fn": "aps",
-    "sensitive": "gender",
-    "fairness_weight": 0.4,
-    "n_trials": 5,
-    "test_size": 0.2,
-    "cal_fraction": 0.3
+    "dataset_name": "adult_income",
+    "model_name": "rf",
+    "sensitive": "gender"
   }
 }

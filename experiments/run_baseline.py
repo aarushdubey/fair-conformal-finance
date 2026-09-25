@@ -1,13 +1,13 @@
 """
-Run baseline experiments: Standard CP vs Group-Conditional CP vs FairTransCP.
+Run baseline experiments: Standard CP vs SOTA Baselines vs FairTransCP.
 
 Usage:
     python experiments/run_baseline.py --dataset german_credit --model rf
     python experiments/run_baseline.py --all
+    python experiments/run_baseline.py --all --sensitivity
 
-This is the main experiment script for the paper. It runs all three
-methods on the specified dataset and model, repeats across 10 random
-splits, and saves results to results/tables/.
+Runs all methods on the specified dataset and model, repeats across trials,
+and saves results to results/tables/.
 """
 
 import sys
@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.utils.evaluation import run_experiment, summarize_results
 
 
-# All dataset-model combinations we evaluate in the paper
+# All dataset-model combinations evaluated in the paper (strictly authentic real benchmarks)
 ALL_CONFIGS = [
     {"dataset_name": "german_credit", "model_name": "rf", "sensitive": "age"},
     {"dataset_name": "german_credit", "model_name": "xgboost", "sensitive": "age"},
@@ -52,19 +52,23 @@ def main():
         default="rf",
         choices=["rf", "xgboost", "lightgbm"],
     )
-    parser.add_argument("--alpha", type=float, default=0.1)
+    parser.add_argument("--alpha", type=float, default=0.1, help="Target miscoverage rate")
     parser.add_argument("--score-fn", type=str, default="aps")
     parser.add_argument("--sensitive", type=str, default="age")
     parser.add_argument("--fairness-weight", type=float, default=0.4)
-    parser.add_argument("--n-trials", type=int, default=10)
+    parser.add_argument("--n-trials", type=int, default=5)
     parser.add_argument(
         "--all",
         action="store_true",
         help="Run all dataset-model combinations",
     )
+    parser.add_argument(
+        "--sensitivity",
+        action="store_true",
+        help="Run sensitivity analysis across alpha in [0.01, 0.05, 0.1, 0.2]",
+    )
     args = parser.parse_args()
 
-    # Output directory
     results_dir = Path(__file__).resolve().parent.parent / "results" / "tables"
     results_dir.mkdir(parents=True, exist_ok=True)
 
@@ -76,6 +80,7 @@ def main():
         }
     ]
 
+    alpha_values = [0.01, 0.05, 0.1, 0.2] if args.sensitivity else [args.alpha]
     all_summaries = {}
 
     for cfg in configs:
@@ -84,42 +89,39 @@ def main():
         print(f"Running: {tag}")
         print(f"{'='*60}")
 
-        results = run_experiment(
-            dataset_name=cfg["dataset_name"],
-            model_name=cfg["model_name"],
-            alpha=args.alpha,
-            score_fn=args.score_fn,
-            sensitive=cfg["sensitive"],
-            fairness_weight=args.fairness_weight,
-            n_trials=args.n_trials,
-        )
+        config_results = {}
+        for alpha in alpha_values:
+            print(f"Evaluating alpha={alpha}...")
+            results = run_experiment(
+                dataset_name=cfg["dataset_name"],
+                model_name=cfg["model_name"],
+                alpha=alpha,
+                score_fn=args.score_fn,
+                sensitive=cfg["sensitive"],
+                fairness_weight=args.fairness_weight,
+                n_trials=args.n_trials,
+            )
+            summary = summarize_results(results)
+            config_results[f"alpha_{alpha}"] = summary
 
-        summary = summarize_results(results)
-        all_summaries[tag] = summary
-
-        # Print the summary
-        print(f"\nResults for {tag}:")
-        for method, metrics in summary.items():
-            print(f"\n  {method}:")
-            for metric, value in metrics.items():
-                print(f"    {metric}: {value}")
+        all_summaries[tag] = config_results
 
         # Save per-config results
         out_path = results_dir / f"{tag}_results.json"
-        with open(out_path, "w") as f:
+        with open(out_path, "w", encoding="utf-8") as f:
             json.dump(
-                {"summary": summary, "config": results["config"]},
+                {"results": config_results, "config": cfg},
                 f,
                 indent=2,
             )
-        print(f"\nSaved to {out_path}")
+        print(f"Saved results to {out_path}")
 
     # Save combined results
     if args.all:
         combined_path = results_dir / "all_results.json"
-        with open(combined_path, "w") as f:
+        with open(combined_path, "w", encoding="utf-8") as f:
             json.dump(all_summaries, f, indent=2)
-        print(f"\nAll results saved to {combined_path}")
+        print(f"All combined results saved to {combined_path}")
 
 
 if __name__ == "__main__":

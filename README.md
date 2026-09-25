@@ -20,34 +20,46 @@ This repository contains the code and experiments accompanying the paper:
 
 Financial machine learning models are increasingly used for high-stakes decisions like credit scoring and fraud detection. While **conformal prediction (CP)** offers distribution-free uncertainty quantification, standard CP methods ignore fairness: they may produce prediction sets that systematically disadvantage certain demographic groups.
 
-Recent work has shown that naively enforcing **equalized coverage** (equal coverage rates across groups) can paradoxically *increase* disparate impact in downstream decisions — a phenomenon we term the **coverage–equity paradox**.
+Recent literature demonstrates that naively enforcing **equalized coverage** (equal coverage rates across groups) can paradoxically *increase* disparate impact in downstream human-in-the-loop decisions — a phenomenon characterized as the **coverage–equity paradox**.
 
-**FairTransCP** addresses this by jointly optimizing two fairness objectives:
-1. **Coverage equity**: similar coverage rates across demographic groups
-2. **Set-size equity**: similar prediction set sizes, so no group faces disproportionate ambiguity
+**FairTransCP** addresses this by jointly calibrating two fairness objectives:
+1. **Coverage equity**: bounding coverage gaps across demographic groups
+2. **Set-size equity**: minimizing prediction set-size disparity so protected groups do not face disproportionate ambiguity
 
-We demonstrate our method on four financial datasets using purely classical ML models (Random Forest, XGBoost, LightGBM) — no deep learning required.
+We evaluate our method across 3 real-world financial/credit benchmarks using strictly classical ML ensembles (Random Forest, XGBoost, LightGBM) — fully explainable and compliant with financial regulations (FCRA, ECOA, EU AI Act).
 
 ## Key Contributions
 
-- A conformal prediction framework that **jointly calibrates** for coverage and set-size fairness
-- **Theoretical guarantees** on worst-group coverage under fairness constraints
-- Empirical evidence of the **coverage–equity paradox** in financial classification
-- Extensive evaluation on **4 financial/credit datasets** with 3 classical ML base models
+- **Dual-Objective Calibration Framework**: Jointly optimizes coverage equity and set-size parity via regularized threshold interpolation.
+- **Theoretical Lower Bound (Theorem 1)**: Formal proof bounding worst-group coverage loss under regularized conformal prediction.
+- **SOTA Benchmarking**: Rigorous comparison against Standard CP, Mondrian CP (Vovk et al.), Label-Clustered CP (LC-CP), and Generic Fair CP.
+- **Classical ML & Full Auditability**: Implemented exclusively with tree-based ensembles (Random Forest, XGBoost, LightGBM).
+- **100% Reproducible**: End-to-end scripts, unit tests, and interactive Jupyter / Google Colab notebook.
 
 ## Installation
 
+### Option 1: Conda (Recommended)
+
 ```bash
-# Clone the repo
 git clone https://github.com/aarushdubey/fair-conformal-finance.git
 cd fair-conformal-finance
 
-# Create a virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate   # Windows
+conda env create -f conda_env.yml
+conda activate fair-conformal
+```
 
-# Install dependencies
+### Option 2: Pip & Virtual Environment
+
+```bash
+git clone https://github.com/aarushdubey/fair-conformal-finance.git
+cd fair-conformal-finance
+
+python -m venv venv
+# Linux/macOS:
+source venv/bin/activate
+# Windows:
+# venv\Scripts\activate
+
 pip install -r requirements.txt
 ```
 
@@ -56,69 +68,52 @@ pip install -r requirements.txt
 ```
 fair-conformal-finance/
 ├── src/                     # Source code
-│   ├── conformal/           # Conformal prediction core
-│   ├── models/              # Base classifier wrappers
-│   ├── fairness/            # Fairness metrics and constraints
-│   ├── data/                # Data loading and preprocessing
-│   └── utils/               # Plotting, evaluation, reproducibility
-├── experiments/             # Experiment scripts and configs
-├── notebooks/               # Exploratory analysis & 1-click Colab demo
-├── results/                 # Generated figures and benchmark tables
-└── tests/                   # Unit test suite
+│   ├── conformal/           # Conformal core & SOTA baselines (Mondrian, LC-CP, GenericFair)
+│   ├── models/              # Base classifiers (Random Forest, XGBoost, LightGBM)
+│   ├── fairness/            # Coverage gap and set-size disparity metrics
+│   ├── data/                # Loaders for German Credit, Taiwan Credit, Adult Census
+│   └── utils/               # Evaluation pipelines and metric summarizers
+├── experiments/             # Baseline runner, sensitivity analysis, and figure generation
+├── notebooks/               # 1-click Google Colab demo
+├── paper/                   # Complete AISTATS 2027 LaTeX manuscript & style files
+├── results/                 # Publication figures and JSON benchmark tables
+├── tests/                   # Smoke tests and pipeline verification
+├── conda_env.yml            # Conda environment specification
+└── requirements.txt         # Pip dependencies
 ```
 
 ## Quick Start
 
+Run an end-to-end experiment on German Credit with Random Forest:
+
 ```bash
-# Run baseline conformal prediction
-python experiments/run_baseline.py --config experiments/configs/german_credit.yaml
-
-# Run FairTransCP
-python experiments/run_fair_conformal.py --config experiments/configs/german_credit.yaml
-
-# Run ablation studies
-python experiments/run_ablation.py --config experiments/configs/german_credit.yaml
+python experiments/run_baseline.py --dataset german_credit --model rf
 ```
 
-## Datasets
-
-| Dataset | Task | Samples | Features | Sensitive Attributes |
-|---------|------|---------|----------|---------------------|
-| [German Credit](https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data) | Credit risk | 1,000 | 20 | Age, Gender |
-| [Taiwan Credit](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients) | Default prediction | 30,000 | 23 | Gender, Education |
-| [IEEE-CIS Fraud](https://www.kaggle.com/c/ieee-fraud-detection) | Fraud detection | 590,540 | 434 | Card type |
-| [Adult Income](https://archive.ics.uci.edu/dataset/2/adult) | Income prediction | 48,842 | 14 | Race, Gender |
-
-Datasets are downloaded automatically on first run.
-
-## Reproducing Results
-
-To reproduce all results from the paper:
+Run the complete benchmark suite across all 9 configurations:
 
 ```bash
-# Full experiment suite (takes ~2 hours on a standard machine)
 python experiments/run_baseline.py --all
-python experiments/run_fair_conformal.py --all
-python experiments/run_ablation.py --all
 ```
 
-Results are saved in `results/tables/` and `results/figures/`.
+Run sensitivity analysis across miscoverage rates $\alpha \in [0.01, 0.05, 0.1, 0.2]$:
 
-## Citation
+```bash
+python experiments/run_baseline.py --all --sensitivity
+```
 
-If you find this work useful, please cite:
+Generate all publication figures:
 
-```bibtex
-@inproceedings{dubey2027fairtranscp,
-  title={Fair Conformal Classification for Financial Transactions:
-         Balancing Coverage and Set-Size Equity Across Demographic Groups},
-  author={Dubey, Aarush},
-  booktitle={Proceedings of the 30th International Conference on
-             Artificial Intelligence and Statistics (AISTATS)},
-  year={2027}
-}
+```bash
+python experiments/plot_figures.py
+```
+
+Run unit tests:
+
+```bash
+python tests/test_pipeline.py
 ```
 
 ## License
 
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
