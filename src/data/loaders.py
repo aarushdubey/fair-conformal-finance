@@ -26,7 +26,7 @@ from typing import Dict, Any
 _DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw")
 
 
-def load_german_credit(sensitive="age") -> Dict[str, Any]:
+def load_german_credit(sensitive: str = "age") -> Dict[str, Any]:
     """
     Load the Statlog German Credit dataset from UCI.
 
@@ -102,7 +102,7 @@ def load_german_credit(sensitive="age") -> Dict[str, Any]:
     }
 
 
-def load_taiwan_credit(sensitive="gender") -> Dict[str, Any]:
+def load_taiwan_credit(sensitive: str = "gender") -> Dict[str, Any]:
     """
     Load the Taiwan Credit Card Default dataset from UCI.
 
@@ -163,7 +163,7 @@ def load_taiwan_credit(sensitive="gender") -> Dict[str, Any]:
     }
 
 
-def load_adult_income(sensitive="gender") -> Dict[str, Any]:
+def load_adult_income(sensitive: str = "gender") -> Dict[str, Any]:
     """
     Load the Adult Income (Census) dataset.
 
@@ -229,7 +229,7 @@ def load_adult_income(sensitive="gender") -> Dict[str, Any]:
 # ── Helper functions ──────────────────────────────────────────────
 
 
-def _find_column(df, candidates):
+def _find_column(df: pd.DataFrame, candidates: List[str]) -> Optional[str]:
     """Try to find a column by checking a list of possible names."""
     for name in candidates:
         if name in df.columns:
@@ -242,7 +242,7 @@ def _find_column(df, candidates):
     return None
 
 
-def _encode_features(df):
+def _encode_features(df: pd.DataFrame) -> np.ndarray:
     """
     Encode a mixed-type DataFrame into a numeric numpy array.
 
@@ -265,7 +265,7 @@ def _encode_features(df):
     return df_copy.values.astype(np.float64)
 
 
-def _synthetic_fallback(dataset_name, sensitive):
+def _synthetic_fallback(dataset_name: str, sensitive: str) -> Dict[str, Any]:
     """
     Generate synthetic data when real datasets can't be downloaded.
     Only for development/testing — real experiments use actual data.
@@ -311,7 +311,7 @@ DATASET_LOADERS = {
 }
 
 
-def load_dataset(name, **kwargs) -> Dict[str, Any]:
+def load_dataset(name: str, **kwargs) -> Dict[str, Any]:
     """
     Load a dataset by name.
 

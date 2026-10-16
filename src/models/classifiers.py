@@ -12,9 +12,11 @@ so that the conformal prediction module doesn't need to know which
 model it's working with.
 """
 
+from sklearn.base import BaseEstimator
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 import numpy as np
+from typing import Any, Dict, Optional
 
 try:
     from xgboost import XGBClassifier
@@ -27,7 +29,7 @@ except ImportError:
     LGBMClassifier = None
 
 
-def get_classifier(name, random_state=42):
+def get_classifier(name: str, random_state: int = 42) -> BaseEstimator:
     """
     Factory function — get a classifier by name with sensible defaults.
 
@@ -90,7 +92,13 @@ def get_classifier(name, random_state=42):
         raise ValueError(f"Unknown model '{name}'. Options: {available}")
 
 
-def tune_classifier(clf, X_train, y_train, param_grid=None, cv=5):
+def tune_classifier(
+    clf: BaseEstimator,
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    param_grid: Optional[Dict[str, Any]] = None,
+    cv: int = 5,
+) -> BaseEstimator:
     """
     Quick hyperparameter tuning via cross-validation.
 

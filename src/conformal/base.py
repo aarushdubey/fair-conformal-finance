@@ -7,7 +7,7 @@ so that different nonconformity scores can be plugged in easily.
 """
 
 import numpy as np
-from typing import Optional
+from typing import Optional, List, Union
 
 
 class SplitConformalClassifier:
@@ -39,7 +39,7 @@ class SplitConformalClassifier:
         in the quantile computation.
     """
 
-    def __init__(self, alpha=0.1, score_fn="softmax", random_state=42):
+    def __init__(self, alpha: float = 0.1, score_fn: str = "softmax", random_state: Optional[int] = 42) -> None:
         self.alpha = alpha
         self.score_fn = score_fn
         self.random_state = random_state
@@ -49,7 +49,7 @@ class SplitConformalClassifier:
         self._quantile = None
         self._n_classes = None
 
-    def calibrate(self, prob_matrix, y_true):
+    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray) -> None:
         """
         Calibrate on a held-out set.
 
@@ -79,7 +79,7 @@ class SplitConformalClassifier:
 
         self._quantile = np.quantile(scores, adjusted_level, method="higher")
 
-    def predict_sets(self, prob_matrix):
+    def predict_sets(self, prob_matrix: np.ndarray) -> List[List[int]]:
         """
         Construct prediction sets for new examples.
 
@@ -125,11 +125,11 @@ class SplitConformalClassifier:
 
         return prediction_sets
 
-    def predict(self, prob_matrix):
+    def predict(self, prob_matrix: np.ndarray) -> List[List[int]]:
         """Alias for predict_sets to maintain familiar scikit-learn style interface."""
         return self.predict_sets(prob_matrix)
 
-    def _compute_scores(self, prob_matrix, y_true):
+    def _compute_scores(self, prob_matrix: np.ndarray, y_true: np.ndarray) -> np.ndarray:
         """Compute nonconformity scores for labeled examples."""
         if self.score_fn == "softmax":
             return self._softmax_scores(prob_matrix, y_true)
@@ -138,7 +138,7 @@ class SplitConformalClassifier:
         else:
             raise ValueError(f"Unknown score function: {self.score_fn}")
 
-    def _compute_score_for_label(self, prob_vector, label):
+    def _compute_score_for_label(self, prob_vector: np.ndarray, label: int) -> float:
         """Compute the nonconformity score for a single (x, y) pair."""
         if self.score_fn == "softmax":
             return 1.0 - prob_vector[label]
@@ -148,7 +148,7 @@ class SplitConformalClassifier:
             raise ValueError(f"Unknown score function: {self.score_fn}")
 
     @staticmethod
-    def _softmax_scores(prob_matrix, y_true):
+    def _softmax_scores(prob_matrix: np.ndarray, y_true: np.ndarray) -> np.ndarray:
         """
         Simple softmax-based score: s(x, y) = 1 - p_hat(y | x).
 
@@ -163,7 +163,7 @@ class SplitConformalClassifier:
         return scores
 
     @staticmethod
-    def _aps_scores(prob_matrix, y_true):
+    def _aps_scores(prob_matrix: np.ndarray, y_true: np.ndarray) -> np.ndarray:
         """
         Adaptive Prediction Sets (Romano et al., 2020).
 
@@ -194,7 +194,7 @@ class SplitConformalClassifier:
         return scores
 
     @staticmethod
-    def _aps_score_single(prob_vector, label):
+    def _aps_score_single(prob_vector: np.ndarray, label: int) -> float:
         """APS score for a single hypothetical (x, label) pair."""
         sorted_indices = np.argsort(-prob_vector)
         cumulative = 0.0
@@ -206,11 +206,11 @@ class SplitConformalClassifier:
         return 1.0
 
     @property
-    def calibration_scores(self):
+    def calibration_scores(self) -> Optional[np.ndarray]:
         """Access the calibration scores (useful for diagnostics)."""
         return self._calibration_scores
 
     @property
-    def threshold(self):
+    def threshold(self) -> Optional[float]:
         """The calibrated quantile threshold."""
         return self._quantile

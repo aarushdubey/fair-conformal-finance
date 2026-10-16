@@ -52,13 +52,13 @@ class FairTransCP:
 
     def __init__(
         self,
-        alpha=0.1,
-        score_fn="aps",
-        fairness_weight=0.4,
-        random_state=42,
-        optimize_lambda=False,
-        beta=0.1,
-    ):
+        alpha: float = 0.1,
+        score_fn: str = "aps",
+        fairness_weight: float = 0.4,
+        random_state: int = 42,
+        optimize_lambda: bool = False,
+        beta: float = 0.1,
+    ) -> None:
         self.alpha = alpha
         self.score_fn = score_fn
         self.fairness_weight = fairness_weight
@@ -77,7 +77,7 @@ class FairTransCP:
             alpha=alpha, score_fn=score_fn, random_state=random_state
         )
 
-    def calibrate(self, prob_matrix, y_true, sensitive_attr):
+    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> None:
         """
         Calibrate with group-aware fairness adjustment.
 
@@ -123,7 +123,7 @@ class FairTransCP:
             prob_matrix, y_true, sensitive_attr
         )
 
-    def _optimize_lambda(self, prob_matrix, y_true, sensitive_attr) -> float:
+    def _optimize_lambda(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> float:
         """
         Find optimal lambda in [0, 1] minimizing joint loss of coverage gap
         and set-size disparity subject to worst-group coverage constraints.
@@ -176,7 +176,7 @@ class FairTransCP:
 
         return best_lam
 
-    def _optimize_quantiles(self, prob_matrix, y_true, sensitive_attr):
+    def _optimize_quantiles(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> Dict[Any, float]:
         """
         Find adjusted quantiles via grid search over the trade-off.
 
@@ -195,7 +195,7 @@ class FairTransCP:
 
         return adjusted
 
-    def predict_sets(self, prob_matrix, sensitive_attr):
+    def predict_sets(self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray) -> List[List[int]]:
         """
         Produce fair prediction sets for test examples.
 
@@ -245,11 +245,11 @@ class FairTransCP:
 
         return prediction_sets
 
-    def predict(self, prob_matrix, sensitive_attr):
+    def predict(self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray) -> List[List[int]]:
         """Alias for predict_sets to maintain familiar scikit-learn style interface."""
         return self.predict_sets(prob_matrix, sensitive_attr)
 
-    def get_diagnostics(self):
+    def get_diagnostics(self) -> Dict[str, Any]:
         """
         Return a summary of calibration state for debugging.
 
