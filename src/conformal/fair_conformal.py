@@ -27,27 +27,22 @@ from .base import SplitConformalClassifier
 
 
 class FairTransCP:
-    """
-    Fair conformal classifier for financial transaction data.
+    """Fair conformal classifier for financial transaction data.
 
     Extends split conformal prediction with group-aware calibration
     that balances coverage equity and set-size equity.
 
-    Parameters
-    ----------
-    alpha : float
-        Target miscoverage rate (e.g. 0.1 for 90% coverage).
-    score_fn : str
-        Nonconformity score function ('softmax' or 'aps').
-    fairness_weight : float
-        Trade-off parameter between coverage equity and set-size
-        equity. In [0, 1]:
-        - 0.0 = pure coverage equalization (may hurt set-size equity)
-        - 1.0 = pure set-size equalization (may hurt coverage equity)
-        - intermediate values balance both
-        We found 0.3-0.5 works well in practice (see ablation study).
-    random_state : int
-        Random seed for reproducibility.
+    Args:
+        alpha (float): Target miscoverage rate (e.g. 0.1 for 90% coverage).
+        score_fn (str): Nonconformity score function ('softmax' or 'aps').
+        fairness_weight (float): Trade-off parameter between coverage equity
+            and set-size equity. In [0, 1]:
+            - 0.0 = pure coverage equalization (may hurt set-size equity)
+            - 1.0 = pure set-size equalization (may hurt coverage equity)
+            - intermediate values balance both.
+        random_state (int): Random seed for reproducibility.
+        optimize_lambda (bool): Whether to optimize lambda trade-off.
+        beta (float): Weight for set-size disparity in optimization.
     """
 
     def __init__(
@@ -78,18 +73,14 @@ class FairTransCP:
         )
 
     def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> None:
-        """
-        Calibrate with group-aware fairness adjustment.
+        """Calibrate with group-aware fairness adjustment.
 
-        Parameters
-        ----------
-        prob_matrix : np.ndarray, shape (n_cal, n_classes)
-            Predicted probabilities on the calibration set.
-        y_true : np.ndarray, shape (n_cal,)
-            True labels.
-        sensitive_attr : np.ndarray, shape (n_cal,)
-            Group membership for each calibration example.
-            Can be any hashable type (int, str, etc.).
+        Args:
+            prob_matrix (np.ndarray): Predicted probabilities on the calibration set.
+                Shape (n_cal, n_classes).
+            y_true (np.ndarray): True labels. Shape (n_cal,).
+            sensitive_attr (np.ndarray): Group membership for each calibration example.
+                Can be any hashable type (int, str, etc.). Shape (n_cal,).
         """
         self._n_classes = prob_matrix.shape[1]
         groups = np.unique(sensitive_attr)
@@ -196,23 +187,19 @@ class FairTransCP:
         return adjusted
 
     def predict_sets(self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray) -> List[List[int]]:
-        """
-        Produce fair prediction sets for test examples.
+        """Produce fair prediction sets for test examples.
 
         Each example uses the adjusted quantile for its demographic
         group as the inclusion threshold.
 
-        Parameters
-        ----------
-        prob_matrix : np.ndarray, shape (n_test, n_classes)
-            Predicted class probabilities.
-        sensitive_attr : np.ndarray, shape (n_test,)
-            Group membership for each test example.
+        Args:
+            prob_matrix (np.ndarray): Predicted class probabilities.
+                Shape (n_test, n_classes).
+            sensitive_attr (np.ndarray): Group membership for each test example.
+                Shape (n_test,).
 
-        Returns
-        -------
-        prediction_sets : list of lists
-            Prediction set for each test example.
+        Returns:
+            List[List[int]]: Prediction set for each test example.
         """
         if not self._adjusted_quantiles:
             raise RuntimeError("Call calibrate() first.")

@@ -30,13 +30,28 @@ def run_experiment(
     n_trials: int = 10,
     optimize_lambda: bool = True,
 ) -> Dict[str, Any]:
-    """
-    Run a complete experiment across all conformal methods and return metrics.
+    """Run a complete experiment across all conformal methods and return metrics.
 
     The data is split three ways:
         train (for fitting the base model)
         calibration (for conformal calibration)
         test (for evaluation)
+
+    Args:
+        dataset_name (str): Name of the dataset to load.
+        model_name (str): Model to use ('rf', 'xgboost', 'lightgbm').
+        alpha (float): Target miscoverage rate.
+        score_fn (str): Nonconformity score function.
+        sensitive (str): Sensitive attribute name.
+        fairness_weight (float): Trade-off weight for fairness.
+        test_size (float): Fraction of data for testing.
+        cal_fraction (float): Fraction of training data for calibration.
+        random_state (int): Seed for reproducibility.
+        n_trials (int): Number of random splits to average over.
+        optimize_lambda (bool): Whether to optimize lambda.
+
+    Returns:
+        Dict[str, Any]: Dictionary containing metrics for all methods and config.
     """
     # Load dataset
     data = load_dataset(dataset_name, sensitive=sensitive)
@@ -164,8 +179,13 @@ def run_experiment(
 
 
 def summarize_results(results: Dict[str, Any]) -> Dict[str, Dict[str, str]]:
-    """
-    Summarize multiple trials into mean +/- std for key metrics.
+    """Summarize multiple trials into mean +/- std for key metrics.
+
+    Args:
+        results (Dict[str, Any]): Raw results from run_experiment.
+
+    Returns:
+        Dict[str, Dict[str, str]]: Summary mapping method -> metric -> "mean +/- std".
     """
     summary = {}
     methods = {

@@ -30,23 +30,18 @@ except ImportError:
 
 
 def get_classifier(name: str, random_state: int = 42) -> BaseEstimator:
-    """
-    Factory function — get a classifier by name with sensible defaults.
+    """Factory function — get a classifier by name with sensible defaults.
 
     We set conservative hyperparameters as defaults. For the paper
     we'll tune these via cross-validation, but these defaults should
     give reasonable results out of the box.
 
-    Parameters
-    ----------
-    name : str
-        One of 'rf', 'xgboost', 'lightgbm'.
-    random_state : int
-        For reproducibility.
+    Args:
+        name (str): One of 'rf', 'xgboost', 'lightgbm'.
+        random_state (int): For reproducibility.
 
-    Returns
-    -------
-    sklearn-compatible classifier
+    Returns:
+        BaseEstimator: sklearn-compatible classifier
     """
     if name == "rf":
         return RandomForestClassifier(
@@ -99,30 +94,22 @@ def tune_classifier(
     param_grid: Optional[Dict[str, Any]] = None,
     cv: int = 5,
 ) -> BaseEstimator:
-    """
-    Quick hyperparameter tuning via cross-validation.
+    """Quick hyperparameter tuning via cross-validation.
 
     We keep the search space small to avoid overfitting on the
     calibration set. The conformal guarantee holds regardless of
     how good the base model is, so we don't need to squeeze out
     every last bit of accuracy.
 
-    Parameters
-    ----------
-    clf : classifier
-        Unfitted classifier instance.
-    X_train : np.ndarray
-        Training features.
-    y_train : np.ndarray
-        Training labels.
-    param_grid : dict or None
-        Search grid. If None, uses a small default grid.
-    cv : int
-        Number of cross-validation folds.
+    Args:
+        clf (BaseEstimator): Unfitted classifier instance.
+        X_train (np.ndarray): Training features.
+        y_train (np.ndarray): Training labels.
+        param_grid (Optional[Dict[str, Any]]): Search grid. If None, uses a small default grid.
+        cv (int): Number of cross-validation folds.
 
-    Returns
-    -------
-    best_clf : fitted classifier with best hyperparameters
+    Returns:
+        BaseEstimator: fitted classifier with best hyperparameters
     """
     if param_grid is None:
         # Minimal default grid — just depth and regularization

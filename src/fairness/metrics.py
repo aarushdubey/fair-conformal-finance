@@ -20,24 +20,18 @@ def compute_group_coverage(
     y_true: np.ndarray,
     sensitive_attr: np.ndarray,
 ) -> Dict[str, float]:
-    """
-    Compute coverage rate for each demographic group.
+    """Compute coverage rate for each demographic group.
 
     Coverage for a group is the fraction of examples where the
     true label is contained in the prediction set.
 
-    Parameters
-    ----------
-    prediction_sets : list of lists
-        The prediction set for each test example.
-    y_true : np.ndarray
-        True labels.
-    sensitive_attr : np.ndarray
-        Group membership.
+    Args:
+        prediction_sets (List[List[int]]): The prediction set for each test example.
+        y_true (np.ndarray): True labels.
+        sensitive_attr (np.ndarray): Group membership.
 
-    Returns
-    -------
-    dict mapping group_name -> coverage_rate
+    Returns:
+        Dict[str, float]: dict mapping group_name -> coverage_rate
     """
     groups = np.unique(sensitive_attr)
     group_coverage = {}
@@ -63,12 +57,18 @@ def compute_group_set_sizes(
     prediction_sets: List[List[int]],
     sensitive_attr: np.ndarray,
 ) -> Dict[str, float]:
-    """
-    Compute the average prediction set size for each group.
+    """Compute the average prediction set size for each group.
 
     Larger sets mean more ambiguity — the model is less decisive
     for that group. If one group consistently gets larger sets,
     that's a form of inequity even if coverage is equalized.
+
+    Args:
+        prediction_sets (List[List[int]]): The prediction set for each test example.
+        sensitive_attr (np.ndarray): Group membership.
+
+    Returns:
+        Dict[str, float]: Average set size mapping group_name -> average_size
     """
     groups = np.unique(sensitive_attr)
     group_sizes = {}
@@ -149,10 +149,17 @@ def compute_all_metrics(
     y_true: np.ndarray,
     sensitive_attr: np.ndarray,
 ) -> Dict[str, float]:
-    """
-    Convenience function: compute all fairness metrics at once.
+    """Convenience function: compute all fairness metrics at once.
 
     Returns a flat dictionary suitable for logging to a results table.
+
+    Args:
+        prediction_sets (List[List[int]]): Prediction sets for each example.
+        y_true (np.ndarray): True labels.
+        sensitive_attr (np.ndarray): Group membership.
+
+    Returns:
+        Dict[str, float]: Dictionary containing all computed metrics.
     """
     gc = compute_group_coverage(prediction_sets, y_true, sensitive_attr)
     gs = compute_group_set_sizes(prediction_sets, sensitive_attr)

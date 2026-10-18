@@ -34,16 +34,13 @@ def load_german_credit(sensitive: str = "age") -> Dict[str, Any]:
     classified as good or bad credit risk based on 20 attributes.
     Small but widely used in fairness research.
 
-    Parameters
-    ----------
-    sensitive : str
-        Which attribute to treat as sensitive.
-        'age' -> binary: age >= 25 vs age < 25
-        'gender' -> extracted from personal status field
+    Args:
+        sensitive (str): Which attribute to treat as sensitive.
+            'age' -> binary: age >= 25 vs age < 25
+            'gender' -> extracted from personal status field
 
-    Returns
-    -------
-    dict with standardized keys (see module docstring)
+    Returns:
+        Dict[str, Any]: dict with standardized keys (see module docstring)
     """
     try:
         from ucimlrepo import fetch_ucirepo
@@ -110,11 +107,9 @@ def load_taiwan_credit(sensitive: str = "gender") -> Dict[str, Any]:
     the client defaults on payment next month. Larger than German Credit
     and commonly used alongside it.
 
-    Parameters
-    ----------
-    sensitive : str
-        'gender' -> SEX column (1=male, 2=female)
-        'education' -> EDUCATION column (bucketed)
+    Args:
+        sensitive (str): 'gender' -> SEX column (1=male, 2=female)
+            'education' -> EDUCATION column (bucketed)
     """
     try:
         from ucimlrepo import fetch_ucirepo
@@ -170,11 +165,9 @@ def load_adult_income(sensitive: str = "gender") -> Dict[str, Any]:
     Classic fairness benchmark: predict whether income exceeds 50K/year.
     ~49K samples with well-known demographic disparities.
 
-    Parameters
-    ----------
-    sensitive : str
-        'gender' -> sex column
-        'race' -> race column (white vs non-white)
+    Args:
+        sensitive (str): 'gender' -> sex column
+            'race' -> race column (white vs non-white)
     """
     try:
         from ucimlrepo import fetch_ucirepo

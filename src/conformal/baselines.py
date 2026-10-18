@@ -13,21 +13,29 @@ from .base import SplitConformalClassifier
 
 
 class MondrianCP:
-    """
-    Mondrian Conformal Prediction.
-    Ensures group-conditional validity by calibrating independent empirical quantiles
-    per sensitive demographic group.
+    """Mondrian Conformal Prediction.
 
-    Reference: Vovk et al. (2012), Conditional Validity of Inductive Conformal Predictors.
+    Ensures group-conditional validity by calibrating independent empirical
+    quantiles per sensitive demographic group.
+
+    Reference: Vovk et al. (2012), Conditional Validity of Inductive
+    Conformal Predictors.
     """
-    def __init__(self, alpha: float = 0.1, score_fn: str = "softmax", random_state: int = 42):
+    def __init__(self, alpha: float = 0.1, score_fn: str = "softmax", random_state: int = 42) -> None:
         self.alpha = alpha
         self.score_fn = score_fn
         self.random_state = random_state
         self._group_thresholds: Dict[Any, float] = {}
         self._n_classes: Optional[int] = None
 
-    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray):
+    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> None:
+        """Calibrate thresholds per group.
+
+        Args:
+            prob_matrix (np.ndarray): Predicted class probabilities.
+            y_true (np.ndarray): True labels.
+            sensitive_attr (np.ndarray): Group membership.
+        """
         self._n_classes = prob_matrix.shape[1]
         groups = np.unique(sensitive_attr)
 
@@ -45,6 +53,15 @@ class MondrianCP:
             self._group_thresholds[g] = cp.threshold
 
     def predict_sets(self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray) -> List[List[int]]:
+        """Construct prediction sets for new examples.
+
+        Args:
+            prob_matrix (np.ndarray): Predicted class probabilities.
+            sensitive_attr (np.ndarray): Group membership.
+
+        Returns:
+            List[List[int]]: Prediction sets for each test example.
+        """
         if not self._group_thresholds:
             raise RuntimeError("Call calibrate() first before predict_sets().")
 
@@ -72,14 +89,14 @@ class MondrianCP:
 
 
 class LCCP:
-    """
-    Label-Clustered Conformal Prediction.
+    """Label-Clustered Conformal Prediction.
+
     Calibrates thresholds per difficulty cluster in label space to mitigate
     set-size disparity while maintaining label-conditional coverage.
 
     Reference: Liu et al. (2026).
     """
-    def __init__(self, alpha: float = 0.1, score_fn: str = "softmax", random_state: int = 42):
+    def __init__(self, alpha: float = 0.1, score_fn: str = "softmax", random_state: int = 42) -> None:
         self.alpha = alpha
         self.score_fn = score_fn
         self.random_state = random_state
@@ -87,10 +104,17 @@ class LCCP:
         self._label_to_cluster: Dict[int, int] = {}
         self._n_classes: Optional[int] = None
 
-    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: Optional[np.ndarray] = None):
+    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: Optional[np.ndarray] = None) -> None:
+        """Calibrate thresholds per label cluster.
+
+        Args:
+            prob_matrix (np.ndarray): Predicted class probabilities.
+            y_true (np.ndarray): True labels.
+            sensitive_attr (Optional[np.ndarray]): Group membership.
+        """
         self._n_classes = prob_matrix.shape[1]
         base_cp = SplitConformalClassifier(score_fn=self.score_fn)
-        
+
         all_scores = np.zeros((len(y_true), self._n_classes))
         for k in range(self._n_classes):
             for i in range(len(y_true)):
@@ -110,6 +134,15 @@ class LCCP:
             self._cluster_thresholds[c] = float(np.quantile(c_scores, min(level, 1.0), method="higher"))
 
     def predict_sets(self, prob_matrix: np.ndarray, sensitive_attr: Optional[np.ndarray] = None) -> List[List[int]]:
+        """Construct prediction sets for new examples.
+
+        Args:
+            prob_matrix (np.ndarray): Predicted class probabilities.
+            sensitive_attr (Optional[np.ndarray]): Group membership.
+
+        Returns:
+            List[List[int]]: Prediction sets for each test example.
+        """
         if not self._cluster_thresholds:
             raise RuntimeError("Call calibrate() first before predict_sets().")
 
@@ -134,14 +167,14 @@ class LCCP:
 
 
 class GenericFairCP:
-    """
-    Generic Conformal Fairness (CF) Framework.
+    """Generic Conformal Fairness (CF) Framework.
+
     Finds a single global threshold that constrains maximum demographic coverage gap <= epsilon
     while satisfying nominal marginal coverage >= 1 - alpha.
 
     Reference: Maneriker et al. (ICLR 2025).
     """
-    def __init__(self, alpha: float = 0.1, epsilon: float = 0.03, score_fn: str = "softmax", random_state: int = 42):
+    def __init__(self, alpha: float = 0.1, epsilon: float = 0.03, score_fn: str = "softmax", random_state: int = 42) -> None:
         self.alpha = alpha
         self.epsilon = epsilon
         self.score_fn = score_fn
@@ -149,7 +182,14 @@ class GenericFairCP:
         self._optimal_threshold: Optional[float] = None
         self._n_classes: Optional[int] = None
 
-    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray):
+    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> None:
+        """Calibrate threshold satisfying coverage and fairness constraints.
+
+        Args:
+            prob_matrix (np.ndarray): Predicted class probabilities.
+            y_true (np.ndarray): True labels.
+            sensitive_attr (np.ndarray): Group membership.
+        """
         self._n_classes = prob_matrix.shape[1]
         base_cp = SplitConformalClassifier(score_fn=self.score_fn)
         scores = base_cp._compute_scores(prob_matrix, y_true)
@@ -175,6 +215,15 @@ class GenericFairCP:
         self._optimal_threshold = best_threshold
 
     def predict_sets(self, prob_matrix: np.ndarray, sensitive_attr: Optional[np.ndarray] = None) -> List[List[int]]:
+        """Construct prediction sets for new examples.
+
+        Args:
+            prob_matrix (np.ndarray): Predicted class probabilities.
+            sensitive_attr (Optional[np.ndarray]): Group membership.
+
+        Returns:
+            List[List[int]]: Prediction sets for each test example.
+        """
         if self._optimal_threshold is None:
             raise RuntimeError("Call calibrate() first before predict_sets().")
 

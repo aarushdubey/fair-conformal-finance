@@ -23,20 +23,16 @@ class SplitConformalClassifier:
     holds regardless of the data distribution, as long as the calibration
     data is exchangeable with the test data.
 
-    Parameters
-    ----------
-    alpha : float
-        Desired miscoverage rate, e.g. 0.1 for 90% coverage.
-    score_fn : str
-        Which nonconformity score to use. Options:
-        - 'softmax': 1 - f(x)_y, where f(x)_y is the predicted
-          probability for the true class y. Simple and effective.
-        - 'aps': Adaptive Prediction Sets (Romano et al., 2020).
-          Accumulates sorted probabilities until the true class is
-          included. Tends to produce smaller sets on average.
-    random_state : int or None
-        Seed for reproducibility. We use this for tie-breaking
-        in the quantile computation.
+    Args:
+        alpha (float): Desired miscoverage rate, e.g. 0.1 for 90% coverage.
+        score_fn (str): Which nonconformity score to use. Options:
+            - 'softmax': 1 - f(x)_y, where f(x)_y is the predicted
+              probability for the true class y. Simple and effective.
+            - 'aps': Adaptive Prediction Sets (Romano et al., 2020).
+              Accumulates sorted probabilities until the true class is
+              included. Tends to produce smaller sets on average.
+        random_state (Optional[int]): Seed for reproducibility. We use this for
+            tie-breaking in the quantile computation.
     """
 
     def __init__(self, alpha: float = 0.1, score_fn: str = "softmax", random_state: Optional[int] = 42) -> None:
@@ -50,19 +46,17 @@ class SplitConformalClassifier:
         self._n_classes = None
 
     def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray) -> None:
-        """
-        Calibrate on a held-out set.
+        """Calibrate on a held-out set.
 
         We compute the nonconformity score for each calibration example
         and then find the (1 - alpha)-quantile. This quantile becomes
         our threshold for constructing prediction sets at test time.
 
-        Parameters
-        ----------
-        prob_matrix : np.ndarray, shape (n_samples, n_classes)
-            Predicted class probabilities from the base model.
-        y_true : np.ndarray, shape (n_samples,)
-            True labels for the calibration set.
+        Args:
+            prob_matrix (np.ndarray): Predicted class probabilities from the
+                base model. Shape (n_samples, n_classes).
+            y_true (np.ndarray): True labels for the calibration set.
+                Shape (n_samples,).
         """
         n_cal = len(y_true)
         self._n_classes = prob_matrix.shape[1]
@@ -80,24 +74,20 @@ class SplitConformalClassifier:
         self._quantile = np.quantile(scores, adjusted_level, method="higher")
 
     def predict_sets(self, prob_matrix: np.ndarray) -> List[List[int]]:
-        """
-        Construct prediction sets for new examples.
+        """Construct prediction sets for new examples.
 
         For each test point, we include class k in the prediction set
         if its nonconformity score s(x, k) is at most the calibration
         quantile. Lower scores mean the model is more "comfortable"
         with that class, so they get included.
 
-        Parameters
-        ----------
-        prob_matrix : np.ndarray, shape (n_samples, n_classes)
-            Predicted class probabilities for test examples.
+        Args:
+            prob_matrix (np.ndarray): Predicted class probabilities for test
+                examples. Shape (n_samples, n_classes).
 
-        Returns
-        -------
-        prediction_sets : list of lists
-            For each test example, the list of class labels included
-            in the prediction set.
+        Returns:
+            List[List[int]]: For each test example, the list of class labels
+                included in the prediction set.
         """
         if self._quantile is None:
             raise RuntimeError(
