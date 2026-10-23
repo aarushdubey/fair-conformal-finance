@@ -84,6 +84,10 @@ fair-conformal-finance/
 
 ## Quick Start
 
+### Configuration
+All experiment hyperparameters are managed in `config.yaml`. You can modify the target miscoverage rate, fairness weight, and default dataset/model settings there for better reproducibility.
+
+### Run Experiments
 Run an end-to-end experiment on German Credit with Random Forest:
 
 ```bash
