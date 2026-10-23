@@ -19,7 +19,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 
 
 # Where to cache downloaded data

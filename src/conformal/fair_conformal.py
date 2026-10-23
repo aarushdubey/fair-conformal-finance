@@ -22,7 +22,7 @@ References
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 from .base import SplitConformalClassifier
 
 
