@@ -1,19 +1,19 @@
 """
 Run baseline experiments: Standard CP vs SOTA Baselines vs FairTransCP.
 
-Usage:
-    python experiments/run_baseline.py --dataset german_credit --model rf
-    python experiments/run_baseline.py --all
-    python experiments/run_baseline.py --all --sensitivity
+This CLI provides a professional interface for running the conformal prediction
+benchmark suite across various financial datasets and base classifiers.
 
-Runs all methods on the specified dataset and model, repeats across trials,
-and saves results to results/tables/.
+Usage:
+    python experiments/run_baseline.py run --dataset german_credit --model rf
+    python experiments/run_baseline.py run --all
+    python experiments/run_baseline.py run --all --sensitivity
 """
 
 import sys
 import os
-import argparse
 import json
+import click
 from pathlib import Path
 
 # Add project root to path so we can import src/
@@ -36,73 +36,78 @@ ALL_CONFIGS = [
 ]
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Run conformal prediction experiments"
-    )
-    parser.add_argument(
-        "--dataset",
-        type=str,
-        default="german_credit",
-        choices=["german_credit", "taiwan_credit", "adult_income"],
-    )
-    parser.add_argument(
-        "--model",
-        type=str,
-        default="rf",
-        choices=["rf", "xgboost", "lightgbm"],
-    )
-    parser.add_argument("--alpha", type=float, default=0.1, help="Target miscoverage rate")
-    parser.add_argument("--score-fn", type=str, default="aps")
-    parser.add_argument("--sensitive", type=str, default="age")
-    parser.add_argument("--fairness-weight", type=float, default=0.4)
-    parser.add_argument("--n-trials", type=int, default=5)
-    parser.add_argument(
-        "--all",
-        action="store_true",
-        help="Run all dataset-model combinations",
-    )
-    parser.add_argument(
-        "--sensitivity",
-        action="store_true",
-        help="Run sensitivity analysis across alpha in [0.01, 0.05, 0.1, 0.2]",
-    )
-    args = parser.parse_args()
+@click.group()
+def cli():
+    """FairTransCP Experiment Runner."""
+    pass
 
+
+@cli.command()
+@click.option(
+    "--dataset",
+    type=click.Choice(["german_credit", "taiwan_credit", "adult_income"]),
+    default="german_credit",
+    help="The dataset to use for the experiment.",
+)
+@click.option(
+    "--model",
+    type=click.Choice(["rf", "xgboost", "lightgbm"]),
+    default="rf",
+    help="The base classifier to use.",
+)
+@click.option("--alpha", type=float, default=0.1, help="Target miscoverage rate (e.g. 0.1).")
+@click.option("--score-fn", type=str, default="aps", help="Nonconformity score function ('softmax' or 'aps').")
+@click.option("--sensitive", type=str, default="age", help="Sensitive attribute name.")
+@click.option("--fairness-weight", type=float, default=0.4, help="Fairness trade-off weight [0, 1].")
+@click.option("--n-trials", type=int, default=5, help="Number of random splits to average over.")
+@click.option(
+    "--all",
+    is_flag=True,
+    help="Run all dataset-model combinations defined in ALL_CONFIGS.",
+)
+@click.option(
+    "--sensitivity",
+    is_flag=True,
+    help="Run sensitivity analysis across alpha values [0.01, 0.05, 0.1, 0.2].",
+)
+def run(
+    dataset, model, alpha, score_fn, sensitive, fairness_weight, n_trials, all, sensitivity
+):
+    """Execute conformal prediction experiments and save results."""
     results_dir = Path(__file__).resolve().parent.parent / "results" / "tables"
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    configs = ALL_CONFIGS if args.all else [
+    configs = ALL_CONFIGS if all else [
         {
-            "dataset_name": args.dataset,
-            "model_name": args.model,
-            "sensitive": args.sensitive,
+            "dataset_name": dataset,
+            "model_name": model,
+            "sensitive": sensitive,
         }
     ]
 
-    alpha_values = [0.01, 0.05, 0.1, 0.2] if args.sensitivity else [args.alpha]
+    alpha_values = [0.01, 0.05, 0.1, 0.2] if sensitivity else [alpha]
     all_summaries = {}
 
     for cfg in configs:
         tag = f"{cfg['dataset_name']}_{cfg['model_name']}"
-        print(f"\n{'='*60}")
-        print(f"Running: {tag}")
-        print(f"{'='*60}")
+        click.echo(f"\n{'='*60}")
+        click.echo(f"Running: {tag}")
+        click.echo(f"{'='*60}")
 
         config_results = {}
-        for alpha in alpha_values:
-            print(f"Evaluating alpha={alpha}...")
+        for a in alpha_values:
+            click.echo(f"Evaluating alpha={a}...")
             results = run_experiment(
                 dataset_name=cfg["dataset_name"],
                 model_name=cfg["model_name"],
-                alpha=alpha,
-                score_fn=args.score_fn,
+                alpha=a,
+                score_fn=score_fn,
                 sensitive=cfg["sensitive"],
-                fairness_weight=args.fairness_weight,
-                n_trials=args.n_trials,
+                fairness_weight=fairness_weight,
+                n_trials=n_trials,
             )
             summary = summarize_results(results)
-            config_results[f"alpha_{alpha}"] = summary
+            config_results[f"alpha_{a}"] = summary
 
         all_summaries[tag] = config_results
 
@@ -114,15 +119,15 @@ def main():
                 f,
                 indent=2,
             )
-        print(f"Saved results to {out_path}")
+        click.echo(f"Saved results to {out_path}")
 
     # Save combined results
-    if args.all:
+    if all:
         combined_path = results_dir / "all_results.json"
         with open(combined_path, "w", encoding="utf-8") as f:
             json.dump(all_summaries, f, indent=2)
-        print(f"All combined results saved to {combined_path}")
+        click.echo(f"All combined results saved to {combined_path}")
 
 
 if __name__ == "__main__":
-    main()
+    cli()
