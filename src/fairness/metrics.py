@@ -11,15 +11,15 @@ much larger (more ambiguous) prediction sets, which creates a
 different kind of unfairness in practice.
 """
 
+
 import numpy as np
-from typing import Dict, List
 
 
 def compute_group_coverage(
-    prediction_sets: List[List[int]],
+    prediction_sets: list[list[int]],
     y_true: np.ndarray,
     sensitive_attr: np.ndarray,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Compute coverage rate for each demographic group.
 
     Coverage for a group is the fraction of examples where the
@@ -54,9 +54,9 @@ def compute_group_coverage(
 
 
 def compute_group_set_sizes(
-    prediction_sets: List[List[int]],
+    prediction_sets: list[list[int]],
     sensitive_attr: np.ndarray,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Compute the average prediction set size for each group.
 
     Larger sets mean more ambiguity — the model is less decisive
@@ -85,7 +85,7 @@ def compute_group_set_sizes(
     return group_sizes
 
 
-def coverage_gap(group_coverage: Dict[str, float]) -> float:
+def coverage_gap(group_coverage: dict[str, float]) -> float:
     """
     Maximum coverage difference between any two groups.
 
@@ -99,7 +99,7 @@ def coverage_gap(group_coverage: Dict[str, float]) -> float:
     return max(values) - min(values)
 
 
-def set_size_disparity(group_sizes: Dict[str, float]) -> float:
+def set_size_disparity(group_sizes: dict[str, float]) -> float:
     """
     Ratio of largest to smallest average set size across groups.
 
@@ -117,27 +117,23 @@ def set_size_disparity(group_sizes: Dict[str, float]) -> float:
     return max_size / min_size
 
 
-def worst_group_coverage(group_coverage: Dict[str, float]) -> float:
+def worst_group_coverage(group_coverage: dict[str, float]) -> float:
     """Minimum coverage across all groups."""
     if not group_coverage:
         return 0.0
     return min(group_coverage.values())
 
 
-def marginal_coverage(
-    prediction_sets: List[List[int]], y_true: np.ndarray
-) -> float:
+def marginal_coverage(prediction_sets: list[list[int]], y_true: np.ndarray) -> float:
     """Overall coverage rate across all examples."""
     n = len(y_true)
     if n == 0:
         return 0.0
-    covered = sum(
-        1 for i in range(n) if y_true[i] in prediction_sets[i]
-    )
+    covered = sum(1 for i in range(n) if y_true[i] in prediction_sets[i])
     return covered / n
 
 
-def average_set_size(prediction_sets: List[List[int]]) -> float:
+def average_set_size(prediction_sets: list[list[int]]) -> float:
     """Average prediction set size across all examples."""
     if not prediction_sets:
         return 0.0
@@ -145,10 +141,10 @@ def average_set_size(prediction_sets: List[List[int]]) -> float:
 
 
 def compute_all_metrics(
-    prediction_sets: List[List[int]],
+    prediction_sets: list[list[int]],
     y_true: np.ndarray,
     sensitive_attr: np.ndarray,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Convenience function: compute all fairness metrics at once.
 
     Returns a flat dictionary suitable for logging to a results table.

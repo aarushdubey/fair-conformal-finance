@@ -5,16 +5,17 @@ Ties together data loading, model training, conformal calibration
 across multiple SOTA baselines and FairTransCP, and fairness evaluation.
 """
 
+from typing import Any
+
 import numpy as np
 from sklearn.model_selection import train_test_split
-from typing import Dict, Any, List
 
-from ..data.loaders import load_dataset
-from ..models.classifiers import get_classifier
 from ..conformal.base import SplitConformalClassifier
+from ..conformal.baselines import LCCP, GenericFairCP, MondrianCP
 from ..conformal.fair_conformal import FairTransCP
-from ..conformal.baselines import MondrianCP, LCCP, GenericFairCP
+from ..data.loaders import load_dataset
 from ..fairness.metrics import compute_all_metrics
+from ..models.classifiers import get_classifier
 
 
 def run_experiment(
@@ -29,7 +30,7 @@ def run_experiment(
     random_state: int = 42,
     n_trials: int = 10,
     optimize_lambda: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Run a complete experiment across all conformal methods and return metrics.
 
     The data is split three ways:
@@ -68,12 +69,10 @@ def run_experiment(
         seed = random_state + trial
 
         # Three-way split: train / calibration / test
-        X_trainval, X_test, y_trainval, y_test, s_trainval, s_test = (
-            train_test_split(
-                X, y, sens, test_size=test_size, random_state=seed, stratify=y
-            )
+        X_trainval, X_test, y_trainval, y_test, s_trainval, s_test = train_test_split(
+            X, y, sens, test_size=test_size, random_state=seed, stratify=y
         )
-        X_train, X_cal, y_train, y_cal, s_train, s_cal = train_test_split(
+        X_train, X_cal, y_train, y_cal, _s_train, s_cal = train_test_split(
             X_trainval,
             y_trainval,
             s_trainval,
@@ -96,39 +95,25 @@ def run_experiment(
         )
         standard_cp.calibrate(prob_cal, y_cal)
         sets_baseline = standard_cp.predict_sets(prob_test)
-        baseline_results.append(
-            compute_all_metrics(sets_baseline, y_test, s_test)
-        )
+        baseline_results.append(compute_all_metrics(sets_baseline, y_test, s_test))
 
         # 2. Mondrian CP
-        mondrian_cp = MondrianCP(
-            alpha=alpha, score_fn=score_fn, random_state=seed
-        )
+        mondrian_cp = MondrianCP(alpha=alpha, score_fn=score_fn, random_state=seed)
         mondrian_cp.calibrate(prob_cal, y_cal, s_cal)
         sets_mondrian = mondrian_cp.predict_sets(prob_test, s_test)
-        mondrian_results.append(
-            compute_all_metrics(sets_mondrian, y_test, s_test)
-        )
+        mondrian_results.append(compute_all_metrics(sets_mondrian, y_test, s_test))
 
         # 3. LC-CP (Label-Clustered CP)
-        lccp = LCCP(
-            alpha=alpha, score_fn=score_fn, random_state=seed
-        )
+        lccp = LCCP(alpha=alpha, score_fn=score_fn, random_state=seed)
         lccp.calibrate(prob_cal, y_cal, s_cal)
         sets_lccp = lccp.predict_sets(prob_test, s_test)
-        lccp_results.append(
-            compute_all_metrics(sets_lccp, y_test, s_test)
-        )
+        lccp_results.append(compute_all_metrics(sets_lccp, y_test, s_test))
 
         # 4. Generic Fair CP
-        generic_fair = GenericFairCP(
-            alpha=alpha, score_fn=score_fn, random_state=seed
-        )
+        generic_fair = GenericFairCP(alpha=alpha, score_fn=score_fn, random_state=seed)
         generic_fair.calibrate(prob_cal, y_cal, s_cal)
         sets_generic = generic_fair.predict_sets(prob_test, s_test)
-        generic_fair_results.append(
-            compute_all_metrics(sets_generic, y_test, s_test)
-        )
+        generic_fair_results.append(compute_all_metrics(sets_generic, y_test, s_test))
 
         # 5. Group-conditional CP
         group_cp = FairTransCP(
@@ -139,9 +124,7 @@ def run_experiment(
         )
         group_cp.calibrate(prob_cal, y_cal, s_cal)
         sets_group = group_cp.predict_sets(prob_test, s_test)
-        group_cp_results.append(
-            compute_all_metrics(sets_group, y_test, s_test)
-        )
+        group_cp_results.append(compute_all_metrics(sets_group, y_test, s_test))
 
         # 6. FairTransCP (Ours)
         fair_cp = FairTransCP(
@@ -153,9 +136,7 @@ def run_experiment(
         )
         fair_cp.calibrate(prob_cal, y_cal, s_cal)
         sets_fair = fair_cp.predict_sets(prob_test, s_test)
-        fair_results.append(
-            compute_all_metrics(sets_fair, y_test, s_test)
-        )
+        fair_results.append(compute_all_metrics(sets_fair, y_test, s_test))
 
     return {
         "baseline_metrics": baseline_results,
@@ -178,7 +159,7 @@ def run_experiment(
     }
 
 
-def summarize_results(results: Dict[str, Any]) -> Dict[str, Dict[str, str]]:
+def summarize_results(results: dict[str, Any]) -> dict[str, dict[str, str]]:
     """Summarize multiple trials into mean +/- std for key metrics.
 
     Args:

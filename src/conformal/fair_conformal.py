@@ -21,8 +21,10 @@ References
 - Cresswell et al. (2025). "When does equalized coverage backfire?"
 """
 
+from typing import Any
+
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Any
+
 from .base import SplitConformalClassifier
 
 
@@ -72,7 +74,9 @@ class FairTransCP:
             alpha=alpha, score_fn=score_fn, random_state=random_state
         )
 
-    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> None:
+    def calibrate(
+        self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray
+    ) -> None:
         """Calibrate with group-aware fairness adjustment.
 
         Args:
@@ -98,23 +102,25 @@ class FairTransCP:
             n_g = len(g_labels)
             level = np.ceil((n_g + 1) * (1 - self.alpha)) / n_g
             level = min(level, 1.0)
-            self._group_quantiles[g] = np.quantile(
-                scores, level, method="higher"
-            )
+            self._group_quantiles[g] = np.quantile(scores, level, method="higher")
 
         # Step 2: Also calibrate the baseline (marginal) CP
         self._base_cp.calibrate(prob_matrix, y_true)
 
         # Step 3: Optimize lambda trade-off if requested
         if self.optimize_lambda:
-            self.fairness_weight = self._optimize_lambda(prob_matrix, y_true, sensitive_attr)
+            self.fairness_weight = self._optimize_lambda(
+                prob_matrix, y_true, sensitive_attr
+            )
 
         # Step 4: Adjust quantiles to balance coverage + set-size equity
         self._adjusted_quantiles = self._optimize_quantiles(
             prob_matrix, y_true, sensitive_attr
         )
 
-    def _optimize_lambda(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> float:
+    def _optimize_lambda(
+        self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray
+    ) -> float:
         """
         Find optimal lambda in [0, 1] minimizing joint loss of coverage gap
         and set-size disparity subject to worst-group coverage constraints.
@@ -122,7 +128,7 @@ class FairTransCP:
         groups = np.unique(sensitive_attr)
         lambdas = np.linspace(0, 1, 21)
         best_lam = float(self.fairness_weight)
-        min_loss = float('inf')
+        min_loss = float("inf")
         marginal_q = self._base_cp.threshold
 
         for lam in lambdas:
@@ -133,7 +139,7 @@ class FairTransCP:
             group_covs = []
             group_sizes = []
             for g in groups:
-                mask = (sensitive_attr == g)
+                mask = sensitive_attr == g
                 g_probs = prob_matrix[mask]
                 scores = self._group_scores[g]
                 thresh = adjusted[g]
@@ -143,12 +149,17 @@ class FairTransCP:
 
                 sample_size = min(100, len(g_probs))
                 if sample_size > 0:
-                    sample_indices = np.random.choice(len(g_probs), sample_size, replace=False)
+                    sample_indices = np.random.choice(
+                        len(g_probs), sample_size, replace=False
+                    )
                     sizes = []
                     for idx in sample_indices:
                         count = 0
                         for k in range(self._n_classes):
-                            if self._base_cp._compute_score_for_label(g_probs[idx], k) <= thresh:
+                            if (
+                                self._base_cp._compute_score_for_label(g_probs[idx], k)
+                                <= thresh
+                            ):
                                 count += 1
                         sizes.append(count)
                     group_sizes.append(np.mean(sizes))
@@ -160,14 +171,15 @@ class FairTransCP:
             loss = gap + self.beta * disparity
 
             # Require worst-group coverage to remain within epsilon of nominal
-            if min(group_covs) >= (1 - self.alpha - 0.05):
-                if loss < min_loss:
-                    min_loss = loss
-                    best_lam = float(lam)
+            if min(group_covs) >= (1 - self.alpha - 0.05) and loss < min_loss:
+                min_loss = loss
+                best_lam = float(lam)
 
         return best_lam
 
-    def _optimize_quantiles(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> Dict[Any, float]:
+    def _optimize_quantiles(
+        self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray
+    ) -> dict[Any, float]:
         """
         Find adjusted quantiles via grid search over the trade-off.
 
@@ -186,7 +198,9 @@ class FairTransCP:
 
         return adjusted
 
-    def predict_sets(self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray) -> List[List[int]]:
+    def predict_sets(
+        self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray
+    ) -> list[list[int]]:
         """Produce fair prediction sets for test examples.
 
         Each example uses the adjusted quantile for its demographic
@@ -212,15 +226,11 @@ class FairTransCP:
 
             # Use the adjusted quantile for this group
             # Fall back to marginal if group wasn't in calibration
-            threshold = self._adjusted_quantiles.get(
-                g, self._base_cp.threshold
-            )
+            threshold = self._adjusted_quantiles.get(g, self._base_cp.threshold)
 
             pset = []
             for k in range(self._n_classes):
-                score_k = self._base_cp._compute_score_for_label(
-                    prob_matrix[i], k
-                )
+                score_k = self._base_cp._compute_score_for_label(prob_matrix[i], k)
                 if score_k <= threshold:
                     pset.append(k)
 
@@ -232,11 +242,13 @@ class FairTransCP:
 
         return prediction_sets
 
-    def predict(self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray) -> List[List[int]]:
+    def predict(
+        self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray
+    ) -> list[list[int]]:
         """Alias for predict_sets to maintain familiar scikit-learn style interface."""
         return self.predict_sets(prob_matrix, sensitive_attr)
 
-    def get_diagnostics(self) -> Dict[str, Any]:
+    def get_diagnostics(self) -> dict[str, Any]:
         """
         Return a summary of calibration state for debugging.
 
@@ -249,7 +261,5 @@ class FairTransCP:
             "group_quantiles": dict(self._group_quantiles),
             "adjusted_quantiles": dict(self._adjusted_quantiles),
             "fairness_weight": self.fairness_weight,
-            "group_sizes": {
-                g: len(s) for g, s in self._group_scores.items()
-            },
+            "group_sizes": {g: len(s) for g, s in self._group_scores.items()},
         }

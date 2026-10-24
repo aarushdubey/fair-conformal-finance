@@ -10,18 +10,17 @@ Usage:
     python experiments/run_baseline.py run --all --sensitivity
 """
 
-import sys
-import os
 import json
-import click
+import sys
 from pathlib import Path
+
+import click
 
 # Add project root to path so we can import src/
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.utils.evaluation import run_experiment, summarize_results
 from src.utils.config import load_config
-
+from src.utils.evaluation import run_experiment, summarize_results
 
 # All dataset-model combinations evaluated in the paper (strictly authentic real benchmarks)
 ALL_CONFIGS = [
@@ -40,7 +39,6 @@ ALL_CONFIGS = [
 @click.group()
 def cli():
     """FairTransCP Experiment Runner."""
-    pass
 
 
 @cli.command()
@@ -57,10 +55,22 @@ def cli():
     help="The base classifier to use. Defaults to config.yaml.",
 )
 @click.option("--alpha", type=float, default=None, help="Target miscoverage rate.")
-@click.option("--score-fn", type=str, default=None, help="Nonconformity score function.")
+@click.option(
+    "--score-fn", type=str, default=None, help="Nonconformity score function."
+)
 @click.option("--sensitive", type=str, default=None, help="Sensitive attribute name.")
-@click.option("--fairness-weight", type=float, default=None, help="Fairness trade-off weight [0, 1].")
-@click.option("--n-trials", type=int, default=None, help="Number of random splits to average over.")
+@click.option(
+    "--fairness-weight",
+    type=float,
+    default=None,
+    help="Fairness trade-off weight [0, 1].",
+)
+@click.option(
+    "--n-trials",
+    type=int,
+    default=None,
+    help="Number of random splits to average over.",
+)
 @click.option(
     "--all",
     is_flag=True,
@@ -72,7 +82,15 @@ def cli():
     help="Run sensitivity analysis across alpha values [0.01, 0.05, 0.1, 0.2].",
 )
 def run(
-    dataset, model, alpha, score_fn, sensitive, fairness_weight, n_trials, all, sensitivity
+    dataset,
+    model,
+    alpha,
+    score_fn,
+    sensitive,
+    fairness_weight,
+    n_trials,
+    all,
+    sensitivity,
 ):
     """Execute conformal prediction experiments and save results."""
     config = load_config()
@@ -82,31 +100,43 @@ def run(
     res_model = model or "rf"
     res_alpha = alpha if alpha is not None else config["conformal"]["alpha"]
     res_score_fn = score_fn or config["conformal"]["score_fn"]
-    res_fairness_weight = fairness_weight if fairness_weight is not None else config["conformal"]["fairness_weight"]
-    res_n_trials = n_trials if n_trials is not None else config["experiment"]["n_trials"]
+    res_fairness_weight = (
+        fairness_weight
+        if fairness_weight is not None
+        else config["conformal"]["fairness_weight"]
+    )
+    res_n_trials = (
+        n_trials if n_trials is not None else config["experiment"]["n_trials"]
+    )
 
     # 2. Resolve sensitive attribute based on dataset
-    res_sensitive = sensitive or config["datasets"].get(res_dataset, {}).get("sensitive", "age")
+    res_sensitive = sensitive or config["datasets"].get(res_dataset, {}).get(
+        "sensitive", "age"
+    )
 
     results_dir = Path(__file__).resolve().parent.parent / "results" / "tables"
     results_dir.mkdir(parents=True, exist_ok=True)
 
-    configs = ALL_CONFIGS if all else [
-        {
-            "dataset_name": res_dataset,
-            "model_name": res_model,
-            "sensitive": res_sensitive,
-        }
-    ]
+    configs = (
+        ALL_CONFIGS
+        if all
+        else [
+            {
+                "dataset_name": res_dataset,
+                "model_name": res_model,
+                "sensitive": res_sensitive,
+            }
+        ]
+    )
 
     alpha_values = [0.01, 0.05, 0.1, 0.2] if sensitivity else [res_alpha]
     all_summaries = {}
 
     for cfg in configs:
         tag = f"{cfg['dataset_name']}_{cfg['model_name']}"
-        click.echo(f"\\n{'='*60}")
+        click.echo(f"\\n{'=' * 60}")
         click.echo(f"Running: {tag}")
-        click.echo(f"{'='*60}")
+        click.echo(f"{'=' * 60}")
 
         config_results = {}
         for a in alpha_values:

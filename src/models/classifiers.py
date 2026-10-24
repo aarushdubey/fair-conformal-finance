@@ -12,11 +12,12 @@ so that the conformal prediction module doesn't need to know which
 model it's working with.
 """
 
+from typing import Any
+
+import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
-import numpy as np
-from typing import Any, Dict, Optional
 
 try:
     from xgboost import XGBClassifier
@@ -91,7 +92,7 @@ def tune_classifier(
     clf: BaseEstimator,
     X_train: np.ndarray,
     y_train: np.ndarray,
-    param_grid: Optional[Dict[str, Any]] = None,
+    param_grid: dict[str, Any] | None = None,
     cv: int = 5,
 ) -> BaseEstimator:
     """Quick hyperparameter tuning via cross-validation.

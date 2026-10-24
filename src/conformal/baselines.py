@@ -7,8 +7,10 @@ Implements:
 3. GenericFairCP: Threshold search satisfying bounded coverage gap epsilon (Maneriker et al., ICLR 2025).
 """
 
+from typing import Any
+
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Any
+
 from .base import SplitConformalClassifier
 
 
@@ -21,14 +23,19 @@ class MondrianCP:
     Reference: Vovk et al. (2012), Conditional Validity of Inductive
     Conformal Predictors.
     """
-    def __init__(self, alpha: float = 0.1, score_fn: str = "softmax", random_state: int = 42) -> None:
+
+    def __init__(
+        self, alpha: float = 0.1, score_fn: str = "softmax", random_state: int = 42
+    ) -> None:
         self.alpha = alpha
         self.score_fn = score_fn
         self.random_state = random_state
-        self._group_thresholds: Dict[Any, float] = {}
-        self._n_classes: Optional[int] = None
+        self._group_thresholds: dict[Any, float] = {}
+        self._n_classes: int | None = None
 
-    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> None:
+    def calibrate(
+        self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray
+    ) -> None:
         """Calibrate thresholds per group.
 
         Args:
@@ -40,7 +47,7 @@ class MondrianCP:
         groups = np.unique(sensitive_attr)
 
         for g in groups:
-            mask = (sensitive_attr == g)
+            mask = sensitive_attr == g
             g_probs = prob_matrix[mask]
             g_labels = y_true[mask]
 
@@ -52,7 +59,9 @@ class MondrianCP:
             cp.calibrate(g_probs, g_labels)
             self._group_thresholds[g] = cp.threshold
 
-    def predict_sets(self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray) -> List[List[int]]:
+    def predict_sets(
+        self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray
+    ) -> list[list[int]]:
         """Construct prediction sets for new examples.
 
         Args:
@@ -96,15 +105,23 @@ class LCCP:
 
     Reference: Liu et al. (2026).
     """
-    def __init__(self, alpha: float = 0.1, score_fn: str = "softmax", random_state: int = 42) -> None:
+
+    def __init__(
+        self, alpha: float = 0.1, score_fn: str = "softmax", random_state: int = 42
+    ) -> None:
         self.alpha = alpha
         self.score_fn = score_fn
         self.random_state = random_state
-        self._cluster_thresholds: Dict[int, float] = {}
-        self._label_to_cluster: Dict[int, int] = {}
-        self._n_classes: Optional[int] = None
+        self._cluster_thresholds: dict[int, float] = {}
+        self._label_to_cluster: dict[int, int] = {}
+        self._n_classes: int | None = None
 
-    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: Optional[np.ndarray] = None) -> None:
+    def calibrate(
+        self,
+        prob_matrix: np.ndarray,
+        y_true: np.ndarray,
+        sensitive_attr: np.ndarray | None = None,
+    ) -> None:
         """Calibrate thresholds per label cluster.
 
         Args:
@@ -124,16 +141,20 @@ class LCCP:
             self._label_to_cluster[k] = k
 
         for c in range(self._n_classes):
-            mask = (y_true == c)
+            mask = y_true == c
             if mask.sum() == 0:
                 continue
 
             c_scores = all_scores[mask, c]
             n_c = len(c_scores)
             level = np.ceil((n_c + 1) * (1 - self.alpha)) / n_c
-            self._cluster_thresholds[c] = float(np.quantile(c_scores, min(level, 1.0), method="higher"))
+            self._cluster_thresholds[c] = float(
+                np.quantile(c_scores, min(level, 1.0), method="higher")
+            )
 
-    def predict_sets(self, prob_matrix: np.ndarray, sensitive_attr: Optional[np.ndarray] = None) -> List[List[int]]:
+    def predict_sets(
+        self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray | None = None
+    ) -> list[list[int]]:
         """Construct prediction sets for new examples.
 
         Args:
@@ -174,15 +195,24 @@ class GenericFairCP:
 
     Reference: Maneriker et al. (ICLR 2025).
     """
-    def __init__(self, alpha: float = 0.1, epsilon: float = 0.03, score_fn: str = "softmax", random_state: int = 42) -> None:
+
+    def __init__(
+        self,
+        alpha: float = 0.1,
+        epsilon: float = 0.03,
+        score_fn: str = "softmax",
+        random_state: int = 42,
+    ) -> None:
         self.alpha = alpha
         self.epsilon = epsilon
         self.score_fn = score_fn
         self.random_state = random_state
-        self._optimal_threshold: Optional[float] = None
-        self._n_classes: Optional[int] = None
+        self._optimal_threshold: float | None = None
+        self._n_classes: int | None = None
 
-    def calibrate(self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray) -> None:
+    def calibrate(
+        self, prob_matrix: np.ndarray, y_true: np.ndarray, sensitive_attr: np.ndarray
+    ) -> None:
         """Calibrate threshold satisfying coverage and fairness constraints.
 
         Args:
@@ -201,7 +231,7 @@ class GenericFairCP:
             groups = np.unique(sensitive_attr)
             covs = []
             for g in groups:
-                mask = (sensitive_attr == g)
+                mask = sensitive_attr == g
                 g_scores = scores[mask]
                 covs.append(np.mean(g_scores <= t))
 
@@ -214,7 +244,9 @@ class GenericFairCP:
 
         self._optimal_threshold = best_threshold
 
-    def predict_sets(self, prob_matrix: np.ndarray, sensitive_attr: Optional[np.ndarray] = None) -> List[List[int]]:
+    def predict_sets(
+        self, prob_matrix: np.ndarray, sensitive_attr: np.ndarray | None = None
+    ) -> list[list[int]]:
         """Construct prediction sets for new examples.
 
         Args:

@@ -6,8 +6,8 @@ Vovk et al. (2005) and Lei et al. (2018). We keep things modular
 so that different nonconformity scores can be plugged in easily.
 """
 
+
 import numpy as np
-from typing import Optional, List, Union
 
 
 class SplitConformalClassifier:
@@ -35,7 +35,12 @@ class SplitConformalClassifier:
             tie-breaking in the quantile computation.
     """
 
-    def __init__(self, alpha: float = 0.1, score_fn: str = "softmax", random_state: Optional[int] = 42) -> None:
+    def __init__(
+        self,
+        alpha: float = 0.1,
+        score_fn: str = "softmax",
+        random_state: int | None = 42,
+    ) -> None:
         self.alpha = alpha
         self.score_fn = score_fn
         self.random_state = random_state
@@ -73,7 +78,7 @@ class SplitConformalClassifier:
 
         self._quantile = np.quantile(scores, adjusted_level, method="higher")
 
-    def predict_sets(self, prob_matrix: np.ndarray) -> List[List[int]]:
+    def predict_sets(self, prob_matrix: np.ndarray) -> list[list[int]]:
         """Construct prediction sets for new examples.
 
         For each test point, we include class k in the prediction set
@@ -115,11 +120,13 @@ class SplitConformalClassifier:
 
         return prediction_sets
 
-    def predict(self, prob_matrix: np.ndarray) -> List[List[int]]:
+    def predict(self, prob_matrix: np.ndarray) -> list[list[int]]:
         """Alias for predict_sets to maintain familiar scikit-learn style interface."""
         return self.predict_sets(prob_matrix)
 
-    def _compute_scores(self, prob_matrix: np.ndarray, y_true: np.ndarray) -> np.ndarray:
+    def _compute_scores(
+        self, prob_matrix: np.ndarray, y_true: np.ndarray
+    ) -> np.ndarray:
         """Compute nonconformity scores for labeled examples."""
         if self.score_fn == "softmax":
             return self._softmax_scores(prob_matrix, y_true)
@@ -196,11 +203,11 @@ class SplitConformalClassifier:
         return 1.0
 
     @property
-    def calibration_scores(self) -> Optional[np.ndarray]:
+    def calibration_scores(self) -> np.ndarray | None:
         """Access the calibration scores (useful for diagnostics)."""
         return self._calibration_scores
 
     @property
-    def threshold(self) -> Optional[float]:
+    def threshold(self) -> float | None:
         """The calibrated quantile threshold."""
         return self._quantile

@@ -1,8 +1,10 @@
-import yaml
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
-def load_config(config_path: str = "config.yaml") -> Dict[str, Any]:
+import yaml
+
+
+def load_config(config_path: str = "config.yaml") -> dict[str, Any]:
     """Load experiment configuration from a YAML file.
 
     Args:

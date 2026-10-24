@@ -16,17 +16,17 @@ fairness literature. No private or proprietary data.
 
 import os
 import warnings
+from typing import Any
+
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-from typing import Dict, Any, List, Optional
-
 
 # Where to cache downloaded data
 _DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw")
 
 
-def load_german_credit(sensitive: str = "age") -> Dict[str, Any]:
+def load_german_credit(sensitive: str = "age") -> dict[str, Any]:
     """
     Load the Statlog German Credit dataset from UCI.
 
@@ -44,13 +44,14 @@ def load_german_credit(sensitive: str = "age") -> Dict[str, Any]:
     """
     try:
         from ucimlrepo import fetch_ucirepo
+
         dataset = fetch_ucirepo(id=144)
         X_df = dataset.data.features.copy()
         y_series = dataset.data.targets.iloc[:, 0].copy()
-    except Exception:
+    except (ImportError, RuntimeError, Exception) as e:  # noqa: BLE001
         # Fallback: generate a synthetic version for testing
         warnings.warn(
-            "Could not fetch German Credit from UCI. "
+            f"Could not fetch German Credit from UCI: {e}. "
             "Using sklearn's make_classification as a stand-in. "
             "Install ucimlrepo and check your internet connection.",
             UserWarning,
@@ -99,7 +100,7 @@ def load_german_credit(sensitive: str = "age") -> Dict[str, Any]:
     }
 
 
-def load_taiwan_credit(sensitive: str = "gender") -> Dict[str, Any]:
+def load_taiwan_credit(sensitive: str = "gender") -> dict[str, Any]:
     """
     Load the Taiwan Credit Card Default dataset from UCI.
 
@@ -113,12 +114,13 @@ def load_taiwan_credit(sensitive: str = "gender") -> Dict[str, Any]:
     """
     try:
         from ucimlrepo import fetch_ucirepo
+
         dataset = fetch_ucirepo(id=350)
         X_df = dataset.data.features.copy()
         y_series = dataset.data.targets.iloc[:, 0].copy()
-    except Exception:
+    except (ImportError, RuntimeError, Exception) as e:  # noqa: BLE001
         warnings.warn(
-            "Could not fetch Taiwan Credit from UCI. Using fallback.",
+            f"Could not fetch Taiwan Credit from UCI: {e}. Using fallback.",
             UserWarning,
         )
         return _synthetic_fallback("taiwan_credit", sensitive)
@@ -137,9 +139,7 @@ def load_taiwan_credit(sensitive: str = "gender") -> Dict[str, Any]:
         if edu_col is not None:
             edu_vals = pd.to_numeric(X_df[edu_col], errors="coerce").fillna(4)
             # Bucket: 1=grad school, 2=university, 3=high school, 4+=other
-            sens = np.where(
-                edu_vals <= 2, "higher_ed", "other_ed"
-            )
+            sens = np.where(edu_vals <= 2, "higher_ed", "other_ed")
         else:
             sens = np.random.choice(["higher_ed", "other_ed"], size=len(y))
     else:
@@ -158,7 +158,7 @@ def load_taiwan_credit(sensitive: str = "gender") -> Dict[str, Any]:
     }
 
 
-def load_adult_income(sensitive: str = "gender") -> Dict[str, Any]:
+def load_adult_income(sensitive: str = "gender") -> dict[str, Any]:
     """
     Load the Adult Income (Census) dataset.
 
@@ -171,12 +171,13 @@ def load_adult_income(sensitive: str = "gender") -> Dict[str, Any]:
     """
     try:
         from ucimlrepo import fetch_ucirepo
+
         dataset = fetch_ucirepo(id=2)
         X_df = dataset.data.features.copy()
         y_series = dataset.data.targets.iloc[:, 0].copy()
-    except Exception:
+    except (ImportError, RuntimeError, Exception) as e:  # noqa: BLE001
         warnings.warn(
-            "Could not fetch Adult Income from UCI. Using fallback.",
+            f"Could not fetch Adult Income from UCI: {e}. Using fallback.",
             UserWarning,
         )
         return _synthetic_fallback("adult_income", sensitive)
@@ -190,7 +191,8 @@ def load_adult_income(sensitive: str = "gender") -> Dict[str, Any]:
         if sex_col is not None:
             sens = np.where(
                 X_df[sex_col].astype(str).str.strip().str.lower() == "male",
-                "male", "female"
+                "male",
+                "female",
             )
         else:
             sens = np.random.choice(["male", "female"], size=len(y))
@@ -199,7 +201,8 @@ def load_adult_income(sensitive: str = "gender") -> Dict[str, Any]:
         if race_col is not None:
             sens = np.where(
                 X_df[race_col].astype(str).str.strip().str.lower() == "white",
-                "white", "non-white"
+                "white",
+                "non-white",
             )
         else:
             sens = np.random.choice(["white", "non-white"], size=len(y))
@@ -222,7 +225,7 @@ def load_adult_income(sensitive: str = "gender") -> Dict[str, Any]:
 # ── Helper functions ──────────────────────────────────────────────
 
 
-def _find_column(df: pd.DataFrame, candidates: List[str]) -> Optional[str]:
+def _find_column(df: pd.DataFrame, candidates: list[str]) -> str | None:
     """Try to find a column by checking a list of possible names."""
     for name in candidates:
         if name in df.columns:
@@ -258,7 +261,7 @@ def _encode_features(df: pd.DataFrame) -> np.ndarray:
     return df_copy.values.astype(np.float64)
 
 
-def _synthetic_fallback(dataset_name: str, sensitive: str) -> Dict[str, Any]:
+def _synthetic_fallback(dataset_name: str, sensitive: str) -> dict[str, Any]:
     """
     Generate synthetic data when real datasets can't be downloaded.
     Only for development/testing — real experiments use actual data.
@@ -304,7 +307,7 @@ DATASET_LOADERS = {
 }
 
 
-def load_dataset(name: str, **kwargs) -> Dict[str, Any]:
+def load_dataset(name: str, **kwargs) -> dict[str, Any]:
     """
     Load a dataset by name.
 
@@ -317,7 +320,5 @@ def load_dataset(name: str, **kwargs) -> Dict[str, Any]:
     """
     if name not in DATASET_LOADERS:
         available = ", ".join(DATASET_LOADERS.keys())
-        raise ValueError(
-            f"Unknown dataset '{name}'. Available: {available}"
-        )
+        raise ValueError(f"Unknown dataset '{name}'. Available: {available}")
     return DATASET_LOADERS[name](**kwargs)

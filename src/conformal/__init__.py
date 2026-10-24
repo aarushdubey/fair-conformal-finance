@@ -1,13 +1,13 @@
 """Conformal prediction module - core CP implementations and SOTA baselines."""
 
 from .base import SplitConformalClassifier
+from .baselines import LCCP, GenericFairCP, MondrianCP
 from .fair_conformal import FairTransCP
-from .baselines import MondrianCP, LCCP, GenericFairCP
 
 __all__ = [
-    "SplitConformalClassifier",
-    "FairTransCP",
-    "MondrianCP",
     "LCCP",
+    "FairTransCP",
     "GenericFairCP",
+    "MondrianCP",
+    "SplitConformalClassifier",
 ]
