@@ -67,20 +67,21 @@ pip install -r requirements.txt
 
 ```
 fair-conformal-finance/
-├── src/                     # Source code
-│   ├── conformal/           # Conformal core & SOTA baselines (Mondrian, LC-CP, GenericFair)
-│   ├── models/              # Base classifiers (Random Forest, XGBoost, LightGBM)
-│   ├── fairness/            # Coverage gap and set-size disparity metrics
-│   ├── data/                # Loaders for German Credit, Taiwan Credit, Adult Census
-│   └── utils/               # Evaluation pipelines and metric summarizers
-├── experiments/             # Baseline runner, sensitivity analysis, and figure generation
+├── src/                     # Source code (Conformal, Data, Fairness, Models, Utils)
+├── experiments/             # Baseline runner & Figure generation
 ├── notebooks/               # 1-click Google Colab demo
-├── paper/                   # Complete AISTATS 2027 LaTeX manuscript & style files
-├── results/                 # Publication figures and JSON benchmark tables
-├── tests/                   # Smoke tests and pipeline verification
-├── conda_env.yml            # Conda environment specification
-└── requirements.txt         # Pip dependencies
+├── paper/                   # AISTATS 2027 LaTeX manuscript
+├── results/                 # Publication figures & benchmark tables
+├── tests/                   # Comprehensive unit & integration tests
+├── pyproject.toml           # Professional Python packaging
+├── config.yaml              # Global experiment hyperparameters
+└── README.md                # Project documentation
 ```
+
+## Documentation
+- [Architecture Overview](ARCHITECTURE.md) — Deep dive into the system design.
+- [Contributing Guide](CONTRIBUTING.md) — How to add new methods or datasets.
+
 
 ## Quick Start
 
