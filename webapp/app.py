@@ -489,9 +489,12 @@ with tab_results:
             st.plotly_chart(fig_disp, use_container_width=True)
 
         st.markdown("#### 📋 Detailed Metrics Table")
-        st.dataframe(df_bench.style.highlight_min(subset=["Set-Size Disparity"], color="#D5F5E3")
-                                   .highlight_max(subset=["Worst-Group Coverage"], color="#D5F5E3"),
-                     use_container_width=True)
+        try:
+            st.dataframe(df_bench.style.highlight_min(subset=["Set-Size Disparity"], color="#D5F5E3")
+                                       .highlight_max(subset=["Worst-Group Coverage"], color="#D5F5E3"),
+                         use_container_width=True)
+        except Exception:
+            st.table(df_bench)
 
         if "adult_income" in key:
             st.error("""
