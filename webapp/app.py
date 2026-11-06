@@ -287,7 +287,7 @@ with tab_story:
         xaxis_title="Group Quantile Threshold (q)",
         yaxis_title="Ambiguity Interval Width W(q)",
         height=340,
-        margin=dict(l=40, r=40, t=50, bottom=40),
+        margin=dict(l=40, r=40, t=50, b=40),
         template="plotly_white"
     )
     st.plotly_chart(fig_prop, use_container_width=True)
