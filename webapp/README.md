@@ -96,3 +96,4 @@ When you sit down with your professor, follow this 4-step walkthrough:
 
 5. **Tab 5 ("Defense Cheatsheet"):**
    - Contains direct answers to tough oral questions your professor might ask (why no deep learning, why not just Mondrian, etc.).
+

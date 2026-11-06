@@ -583,3 +583,4 @@ with tab_defense:
 # Footer
 st.markdown("---")
 st.markdown("<div style='text-align:center; color:gray; font-size:0.85rem;'>FairTransCP Project Web Application • Ready for Local Demo & Render Deployment</div>", unsafe_allow_html=True)
+
