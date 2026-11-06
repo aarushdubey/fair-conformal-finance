@@ -327,14 +327,18 @@ with tab_sim:
     fair_cp = FairTransCP(alpha=target_alpha, fairness_weight=fairness_lambda)
     fair_cp.calibrate(cal_probs, y_cal, s_cal)
 
+    # Helper for demographic group detection
+    def is_young_segment(val):
+        return str(val).lower() in ["age<25", "<25", "1", "young"]
+
     # Let user pick applicant
     applicant_idx = st.selectbox("Select Applicant ID from Test Set:", options=list(range(min(50, len(X_test)))),
-                                 format_func=lambda i: f"Applicant #{i+1} | Group: {'Young (<25 yrs)' if s_test[i] == 1 else 'Standard (>=25 yrs)'} | True Label: {'Good Credit (1)' if y_test[i] == 1 else 'Bad Credit (0)'}")
+                                 format_func=lambda i: f"Applicant #{i+1} | Group: {'Young (<25 yrs)' if is_young_segment(s_test[i]) else 'Standard (>=25 yrs)'} | True Label: {'Good Credit (1)' if y_test[i] == 1 else 'Bad Credit (0)'}")
 
     p_bad = test_probs[applicant_idx, 0]
     p_good = test_probs[applicant_idx, 1]
     group_id = s_test[applicant_idx]
-    group_name = "Protected Group (Young <25)" if group_id == 1 else "Standard Group (Age >= 25)"
+    group_name = "Protected Group (Young <25)" if is_young_segment(group_id) else "Standard Group (Age >= 25)"
 
     # Predict sets for this applicant
     single_prob = test_probs[applicant_idx:applicant_idx+1]
