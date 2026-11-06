@@ -3,11 +3,13 @@
 > Balancing Coverage and Set-Size Equity Across Demographic Groups
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aarushdubey/fair-conformal-finance/blob/main/notebooks/demo.ipynb)
+[![Streamlit Web App](https://img.shields.io/badge/Streamlit-Live%20Demo-FF4B4B.svg)](webapp/README.md)
+[![Render Deploy](https://img.shields.io/badge/Render-Deploy%20Ready-46E3B7.svg)](render.yaml)
 [![Paper Under Review](https://img.shields.io/badge/AISTATS-2027-blue.svg)](#)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-> 🚀 **Test Without Local Setup:** Click the **Open in Colab** badge above to execute the entire interactive workflow in your browser via Google Colab with zero installation.
+> 🚀 **Interactive Demonstration:** You can run our interactive Streamlit web application locally via `streamlit run webapp/app.py` or deploy directly to Render / Streamlit Cloud. See [webapp/README.md](webapp/README.md) for step-by-step instructions. Alternatively, click the **Open in Colab** badge above for Google Colab.
 
 This repository contains the code and experiments accompanying the paper:
 

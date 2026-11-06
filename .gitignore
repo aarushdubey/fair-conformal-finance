@@ -11,3 +11,6 @@ env/
 results/
 *.log
 .DS_Store
+venv_mac/
+paper/
+docs/
