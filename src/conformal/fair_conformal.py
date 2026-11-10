@@ -18,7 +18,8 @@ References
 - Romano, Sesia & Candes (2020). "Classification with Valid and
   Adaptive Coverage." NeurIPS.
 - Zhou & Sesia (2024). "Adaptively Fair Conformal Prediction."
-- Cresswell et al. (2025). "When does equalized coverage backfire?"
+- Cresswell et al. (2025). "Conformal Prediction Sets Can Cause
+  Disparate Impact." ICLR.
 """
 
 from typing import Any
