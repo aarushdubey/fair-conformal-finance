@@ -12,5 +12,11 @@ results/
 *.log
 .DS_Store
 venv_mac/
-paper/
+paper/*.pdf
+paper/*.zip
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
 docs/
