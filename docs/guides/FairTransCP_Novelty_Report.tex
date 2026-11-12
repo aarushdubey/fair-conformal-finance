@@ -1,0 +1,658 @@
+\documentclass[11pt,a4paper]{article}
+
+% ── Packages ──────────────────────────────────────────────
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{setspace}
+
+% ── Colors ────────────────────────────────────────────────
+\definecolor{accentblue}{HTML}{1A5276}
+\definecolor{lightblue}{HTML}{EBF5FB}
+\definecolor{darkgreen}{HTML}{1E8449}
+\definecolor{lightgreen}{HTML}{E8F8F5}
+\definecolor{warnorange}{HTML}{E67E22}
+\definecolor{lightorange}{HTML}{FEF5E7}
+\definecolor{alertred}{HTML}{C0392B}
+\definecolor{lightred}{HTML}{FDEDEC}
+\definecolor{sectioncolor}{HTML}{154360}
+\definecolor{codegray}{HTML}{F4F6F7}
+
+% ── Hyperref styling ─────────────────────────────────────
+\hypersetup{
+    colorlinks=true,
+    linkcolor=accentblue,
+    urlcolor=accentblue,
+    citecolor=accentblue
+}
+
+% ── Section styling ──────────────────────────────────────
+\titleformat{\section}
+  {\Large\bfseries\color{sectioncolor}}{\thesection}{1em}{}[\vspace{2pt}\color{accentblue}\titlerule]
+\titleformat{\subsection}
+  {\large\bfseries\color{sectioncolor}}{\thesubsection}{1em}{}
+
+% ── Header / Footer ─────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{gray}{FairTransCP — Project \& Novelty Report}}
+\fancyhead[R]{\small\textcolor{gray}{AISTATS 2027 Submission}}
+\fancyfoot[C]{\small\textcolor{gray}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── tcolorbox environments ──────────────────────────────
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{keyinsight}{
+    colback=lightblue, colframe=accentblue,
+    fonttitle=\bfseries, title=Key Insight,
+    breakable, left=6pt, right=6pt, top=4pt, bottom=4pt,
+    boxrule=0.8pt, arc=2pt
+}
+
+\newtcolorbox{strengthbox}{
+    colback=lightgreen, colframe=darkgreen,
+    fonttitle=\bfseries, title=Novelty Strength,
+    breakable, left=6pt, right=6pt, top=4pt, bottom=4pt,
+    boxrule=0.8pt, arc=2pt
+}
+
+\newtcolorbox{cautionbox}{
+    colback=lightorange, colframe=warnorange,
+    fonttitle=\bfseries, title=Reviewer Concern,
+    breakable, left=6pt, right=6pt, top=4pt, bottom=4pt,
+    boxrule=0.8pt, arc=2pt
+}
+
+\newtcolorbox{weaknessbox}{
+    colback=lightred, colframe=alertred,
+    fonttitle=\bfseries, title=Critical Weakness,
+    breakable, left=6pt, right=6pt, top=4pt, bottom=4pt,
+    boxrule=0.8pt, arc=2pt
+}
+
+\newtcolorbox{recommendbox}{
+    colback=codegray, colframe=gray!60!black,
+    fonttitle=\bfseries, title=Recommendation,
+    breakable, left=6pt, right=6pt, top=4pt, bottom=4pt,
+    boxrule=0.8pt, arc=2pt
+}
+
+% ── Theorem environments ─────────────────────────────────
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+
+% ── Document ─────────────────────────────────────────────
+\begin{document}
+
+% ══════════════════════════════════════════════════════════
+%  TITLE PAGE
+% ══════════════════════════════════════════════════════════
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\Huge\bfseries\color{sectioncolor} FairTransCP}\\[0.6cm]
+{\LARGE\color{accentblue} Fair Conformal Classification for\\Financial Transactions}\\[1.5cm]
+
+\rule{0.7\textwidth}{1pt}\\[0.8cm]
+
+{\Large Project Overview \& Novelty Analysis}\\[0.4cm]
+{\large Prepared for Faculty Review}\\[1.5cm]
+
+\rule{0.7\textwidth}{0.4pt}\\[0.8cm]
+
+\begin{tabular}{rl}
+\textbf{Author:} & Aarush Dubey \\[4pt]
+\textbf{Target Venue:} & AISTATS 2027 (Artificial Intelligence and Statistics) \\[4pt]
+\textbf{Paper Title:} & \emph{Fair Conformal Classification for Financial Transactions:} \\
+& \emph{Balancing Coverage and Set-Size Equity Across} \\
+& \emph{Demographic Groups} \\[4pt]
+\textbf{Date:} & October 2026 \\[4pt]
+\textbf{Repository:} & \url{https://github.com/aarushdubey/fair-conformal-finance}
+\end{tabular}
+
+\vfill
+
+{\small This document provides a self-contained explanation of the project, its methodology, and a candid assessment of novelty and uniqueness for academic review.}
+\end{titlepage}
+
+% ══════════════════════════════════════════════════════════
+%  TABLE OF CONTENTS
+% ══════════════════════════════════════════════════════════
+\tableofcontents
+\newpage
+
+% ══════════════════════════════════════════════════════════
+%  PART I — PROJECT OVERVIEW
+% ══════════════════════════════════════════════════════════
+\section{Executive Summary}
+\label{sec:summary}
+
+This project addresses a subtle but consequential failure mode in fair machine learning for financial applications. When conformal prediction --- a distribution-free method for uncertainty quantification --- is naively extended to enforce equal coverage rates across demographic groups, it can \emph{increase} unfairness by producing larger, more ambiguous prediction sets for minority groups. We call this the \textbf{coverage-equity paradox}.
+
+The proposed framework, \textbf{FairTransCP} (\textbf{Fair} Financial \textbf{Trans}action \textbf{C}onformal \textbf{P}rediction), jointly optimizes two fairness objectives:
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Coverage equity}: ensuring all demographic groups receive valid prediction sets that contain the true outcome at least $(1-\alpha)$ of the time.
+    \item \textbf{Set-size equity}: ensuring no group receives systematically larger (more ambiguous) prediction sets than any other.
+\end{enumerate}
+
+The entire pipeline uses classical, interpretable tree-based models (Random Forest, XGBoost, LightGBM) --- no deep learning --- ensuring compliance with financial regulatory requirements for model explainability (U.S.\ FCRA, ECOA; EU AI Act).
+
+% ══════════════════════════════════════════════════════════
+\section{Background: What Is Conformal Prediction?}
+\label{sec:background}
+
+\subsection{The Core Idea}
+
+Traditional classifiers output a single predicted label: ``approve'' or ``reject.'' But in high-stakes domains like lending, a single point prediction provides no measure of uncertainty. \textbf{Conformal prediction (CP)} replaces a single label with a \emph{prediction set} --- a subset of possible outcomes that is guaranteed to contain the true outcome with a user-specified probability.
+
+Formally, given a desired miscoverage rate $\alpha \in (0,1)$, a conformal predictor constructs a set-valued function $C: \mathcal{X} \to 2^{\mathcal{Y}}$ satisfying:
+\begin{equation}
+\label{eq:marginal}
+\mathbb{P}\bigl(Y \in C(X)\bigr) \;\ge\; 1 - \alpha.
+\end{equation}
+
+\begin{keyinsight}
+For a lending model with $\alpha = 0.10$, this means: at least 90\% of applicants will receive a prediction set that contains the correct outcome. This guarantee holds \emph{regardless of the data distribution} --- it only requires that calibration and test data are exchangeable.
+\end{keyinsight}
+
+\subsection{Split Conformal Prediction (the Standard Method)}
+
+The pipeline works in three steps:
+
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Train} a base classifier $\hat{\pi}$ on training data $\mathcal{D}_{\text{train}}$ to produce predicted probabilities $\hat{\pi}_k(x) = \hat{\mathbb{P}}(Y=k \mid X=x)$.
+    \item \textbf{Calibrate} on a held-out set $\mathcal{D}_{\text{cal}} = \{(X_i, Y_i)\}_{i=1}^n$:
+    \begin{itemize}
+        \item Compute a \emph{nonconformity score} for each calibration point. A common choice is $S(x,y) = 1 - \hat{\pi}_y(x)$ (how ``surprised'' the model is by the true label).
+        \item Find the $(1-\alpha)$-quantile of these scores:
+        \begin{equation}
+        \hat{q}_{1-\alpha} = \text{Quantile}\!\left(\frac{\lceil(n+1)(1-\alpha)\rceil}{n};\;\{s_i\}_{i=1}^n\right).
+        \end{equation}
+    \end{itemize}
+    \item \textbf{Predict} on a new test point $X_{n+1}$: include label $y$ in the set if its score is below the threshold:
+    \begin{equation}
+    C(X_{n+1}) = \bigl\{y \in \mathcal{Y} : S(X_{n+1}, y) \le \hat{q}_{1-\alpha}\bigr\}.
+    \end{equation}
+\end{enumerate}
+
+\subsection{The Problem: Marginal Coverage $\neq$ Group-Level Fairness}
+
+The guarantee in Eq.~\eqref{eq:marginal} is \emph{marginal} --- it holds on average across the entire population. But it permits scenarios where:
+\begin{itemize}
+    \item Group A (majority, e.g., male applicants) achieves 95\% coverage.
+    \item Group B (minority, e.g., female applicants) achieves only 82\% coverage.
+\end{itemize}
+Overall coverage is 90\%, but Group B is systematically under-covered. This is unfair.
+
+The natural fix is \textbf{group-conditional calibration}: compute a separate threshold $\hat{q}^{(a)}$ for each demographic group $a$, enforcing:
+\begin{equation}
+\label{eq:group_cond}
+\mathbb{P}\bigl(Y \in C(X) \mid A = a\bigr) \;\ge\; 1 - \alpha \quad \forall\; a \in \mathcal{A}.
+\end{equation}
+
+\emph{This is where the paradox emerges.}
+
+% ══════════════════════════════════════════════════════════
+\section{The Coverage-Equity Paradox}
+\label{sec:paradox}
+
+\subsection{Why Group-Conditional Calibration Backfires}
+
+In binary lending decisions ($\mathcal{Y} = \{\text{approve}, \text{reject}\}$), when a minority group has noisier or less confident model predictions, achieving coverage $\ge 1-\alpha$ for that group requires inflating the quantile threshold $\hat{q}^{(0)}$. This directly expands the range of predicted probabilities for which the model outputs the ambiguous set $\{\text{approve}, \text{reject}\}$.
+
+\begin{proposition}[Ambiguity Width --- Proven in the Paper]
+For binary classification with softmax scoring, a test instance $x$ receives the ambiguous prediction set $C(x) = \{0,1\}$ if and only if:
+\[
+1 - \hat{q}^{(a)} \;\le\; \hat{\pi}_1(x) \;\le\; \hat{q}^{(a)}.
+\]
+The width of this ambiguity interval is:
+\[
+\mathcal{W}(\hat{q}^{(a)}) = \max\!\bigl(0,\; 2\hat{q}^{(a)} - 1\bigr).
+\]
+\end{proposition}
+
+\begin{keyinsight}
+The ambiguity interval is \emph{strictly monotonically increasing} in the group quantile. If a minority group needs a higher quantile for coverage, it automatically gets more ambiguous predictions --- more $\{\text{approve}, \text{reject}\}$ outputs. In practice, these ambiguous cases are routed to manual underwriting, creating administrative delays, higher dropout rates, and subjective human bias for precisely the population that fairness was supposed to protect.
+\end{keyinsight}
+
+\subsection{Empirical Evidence of the Paradox}
+
+Table~\ref{tab:paradox_evidence} demonstrates the paradox using three financial benchmarks.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Empirical evidence of the coverage-equity paradox. Mondrian CP (group-conditional calibration) equalizes coverage but spikes set-size disparity. The most dramatic case is Adult Income + XGBoost: disparity surges from 1.040 to 1.637 (a +57.4\% increase).}
+\label{tab:paradox_evidence}
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{Dataset + Model} & \textbf{Method} & \textbf{Worst-Group Cov.} & \textbf{Set-Size Disparity} \\
+\midrule
+\multirow{2}{*}{German Credit + RF}
+    & Standard CP   & 0.927 & 1.032 \\
+    & Mondrian CP   & 0.951 & 1.059 \textcolor{alertred}{(+2.6\%)} \\
+\midrule
+\multirow{2}{*}{Taiwan Credit + RF}
+    & Standard CP   & 0.927 & 1.011 \\
+    & Mondrian CP   & 0.930 & 1.032 \textcolor{alertred}{(+2.1\%)} \\
+\midrule
+\multirow{2}{*}{Adult Income + XGBoost}
+    & Standard CP   & 0.953 & 1.040 \\
+    & Mondrian CP   & 0.909 & \textbf{1.637} \textcolor{alertred}{(+57.4\%)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ══════════════════════════════════════════════════════════
+\section{The FairTransCP Methodology}
+\label{sec:method}
+
+\subsection{Core Idea: Interpolated Thresholds}
+
+Instead of choosing \emph{either} marginal calibration (single threshold, ignores groups) \emph{or} group-conditional calibration (separate thresholds, causes disparity), FairTransCP defines an \emph{interpolated} threshold for each group $g$:
+\begin{equation}
+\boxed{
+\tilde{q}^{(g)}(\lambda) = (1 - \lambda)\,\hat{q}^{(g)} + \lambda\,\hat{q}_{\text{pooled}}, \qquad \lambda \in [0, 1].
+}
+\label{eq:interpolation}
+\end{equation}
+
+The regularization parameter $\lambda$ acts as a continuous dial:
+
+\begin{center}
+\small
+\begin{tabular}{@{}cl@{}}
+\toprule
+$\lambda$ & \textbf{Behavior} \\
+\midrule
+$0$ & Pure group-conditional CP (max coverage equity, risks set-size disparity) \\
+$1$ & Pure marginal CP (min set-size inflation, risks coverage gaps) \\
+$0.3$--$0.5$ & \textbf{Balanced regime}: dampens disparity while preserving coverage \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Formal Coverage Guarantee}
+
+\begin{theorem}[Coverage Lower Bound --- Proven in the Paper]
+For any $\lambda \in [0,1]$, the interpolated threshold $\tilde{q}^{(g)}(\lambda)$ ensures group-conditional coverage:
+\[
+\mathbb{P}\!\bigl(S(X,Y) \le \tilde{q}^{(g)}(\lambda) \mid A = g\bigr) \;\ge\; (1-\alpha) - \lambda \cdot \mathbb{P}\!\bigl(S(X,Y) \in (\hat{q}_{\text{pooled}},\, \hat{q}^{(g)}) \mid A = g\bigr)_+\!,
+\]
+where $(\cdot)_+$ denotes the positive part. As $\lambda \to 0$, we recover the full $1-\alpha$ guarantee.
+\end{theorem}
+
+This guarantees that the coverage loss is \emph{bounded and controlled}, not arbitrary.
+
+\subsection{Automated $\lambda^*$ Selection}
+
+The optimal $\lambda^*$ is found by minimizing a joint loss:
+\begin{equation}
+\lambda^* = \arg\min_{\lambda \in [0,1]}\; \underbrace{\Delta_{\text{cov}}\!\bigl(\tilde{q}(\lambda)\bigr)}_{\text{coverage gap}} + \beta \cdot \underbrace{\mathcal{D}_{\text{size}}\!\bigl(\tilde{q}(\lambda)\bigr)}_{\text{set-size disparity}},
+\end{equation}
+subject to worst-group coverage $\ge 1 - \alpha - \epsilon$ for all groups. The parameter $\beta$ controls the relative importance of the two objectives.
+
+\subsection{Fairness Metrics Used}
+
+\begin{definition}[Coverage Gap]
+$\Delta_{\text{cov}}(C) = \max_{a} \text{Cov}_a(C) - \min_{a} \text{Cov}_a(C)$, where $\text{Cov}_a = \mathbb{P}(Y \in C(X) \mid A = a)$.
+\end{definition}
+
+\begin{definition}[Set-Size Disparity]
+$\mathcal{D}_{\text{size}}(C) = \frac{\max_a\, \bar{\mathcal{S}}_a(C)}{\min_a\, \bar{\mathcal{S}}_a(C)}$, where $\bar{\mathcal{S}}_a = \mathbb{E}[|C(X)| \mid A = a]$.
+\end{definition}
+
+A value of $\mathcal{D}_{\text{size}} = 1.0$ indicates perfect set-size equity; values much greater than $1.0$ indicate that some groups face disproportionate ambiguity.
+
+% ══════════════════════════════════════════════════════════
+\section{Experimental Setup and Results}
+\label{sec:experiments}
+
+\subsection{Benchmarks}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Datasets used in the evaluation.}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{$N$} & \textbf{Features} & \textbf{Sensitive Attribute} \\
+\midrule
+German Credit (UCI) & 1,000 & 20 & Age ($<$25 vs.\ $\ge$25), Sex \\
+Taiwan Credit Default (UCI) & 30,000 & 23 & Sex \\
+Adult Census Income (UCI) & 48,842 & 14 & Sex \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Models}
+Three classical tree-based ensembles:
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Random Forest} (100 estimators, max depth 8)
+    \item \textbf{XGBoost} (100 estimators, learning rate 0.1)
+    \item \textbf{LightGBM} (default configuration)
+\end{itemize}
+All models use Adaptive Prediction Sets (APS) as the nonconformity score.
+
+\subsection{Baselines Compared}
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Standard CP}: Marginal conformal prediction (single pooled threshold).
+    \item \textbf{Mondrian CP}: Independent thresholds per group (Vovk et al., 2012).
+    \item \textbf{LC-CP}: Label-Clustered CP, calibrates thresholds per label cluster (Liu et al., 2026).
+    \item \textbf{Generic Fair CP}: Threshold optimization enforcing a strict coverage gap $\le \epsilon$ (Maneriker et al., ICLR 2025).
+    \item \textbf{FairTransCP} (ours): Dual-objective interpolated calibration.
+\end{enumerate}
+
+\subsection{Protocol}
+Data split: 50\% train, 25\% calibration, 25\% test. Each experiment repeated over 5 independent random splits. Nominal coverage target: 90\% ($\alpha = 0.10$).
+
+\subsection{Key Results}
+
+Table~\ref{tab:main} presents the full results.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{Full experimental results (mean $\pm$ std over 5 trials). Target coverage: 90\%.}
+\label{tab:main}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lllcccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{Model} & \textbf{Method} & \textbf{Marg.\ Cov.} & \textbf{Worst-Grp Cov.} & \textbf{Avg Set Size} & \textbf{Disparity} \\
+\midrule
+German & RF & Standard CP & .950$\pm$.027 & .927$\pm$.040 & 1.842$\pm$.049 & 1.032$\pm$.027 \\
+& & Mondrian CP & .959$\pm$.022 & .951$\pm$.024 & 1.866$\pm$.044 & 1.059$\pm$.023 \\
+& & LC-CP & .949$\pm$.029 & .932$\pm$.045 & 1.863$\pm$.068 & 1.033$\pm$.026 \\
+& & Generic Fair CP & .997$\pm$.006 & .997$\pm$.007 & 1.995$\pm$.010 & \textbf{1.003}$\pm$.006 \\
+& & \textbf{FairTransCP} & .969$\pm$.032 & .961$\pm$.032 & 1.914$\pm$.083 & 1.026$\pm$.019 \\
+\cmidrule{2-7}
+& XGB & Standard CP & .959$\pm$.015 & .953$\pm$.015 & 1.913$\pm$.012 & 1.028$\pm$.027 \\
+& & Mondrian CP & .961$\pm$.016 & .953$\pm$.015 & 1.923$\pm$.017 & 1.024$\pm$.016 \\
+& & \textbf{FairTransCP} & .961$\pm$.016 & .953$\pm$.015 & 1.922$\pm$.016 & \textbf{1.021}$\pm$.014 \\
+\midrule
+Taiwan & XGB & Standard CP & .951$\pm$.001 & .949$\pm$.001 & 1.649$\pm$.004 & 1.016$\pm$.004 \\
+& & Mondrian CP & .951$\pm$.001 & .949$\pm$.001 & 1.649$\pm$.004 & 1.016$\pm$.004 \\
+& & \textbf{FairTransCP} & .951$\pm$.001 & .949$\pm$.001 & 1.649$\pm$.004 & \textbf{1.016}$\pm$.004 \\
+\midrule
+Adult & XGB & Standard CP & .962$\pm$.002 & .953$\pm$.003 & 1.661$\pm$.003 & 1.040$\pm$.004 \\
+& & Mondrian CP & .938$\pm$.002 & .909$\pm$.003 & 1.465$\pm$.014 & \textbf{1.637}$\pm$.055 \\
+& & LC-CP & .904$\pm$.003 & .894$\pm$.005 & 1.679$\pm$.003 & 1.034$\pm$.005 \\
+& & \textbf{FairTransCP} & .962$\pm$.002 & .953$\pm$.003 & 1.661$\pm$.003 & 1.040$\pm$.004 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The key findings are:
+
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{The paradox is real.} On Adult Income + XGBoost, Mondrian CP causes set-size disparity to surge from 1.040 to \textbf{1.637} --- a +57.4\% increase --- while trying to equalize coverage.
+    \item \textbf{FairTransCP mitigates the spike} while preserving coverage comparable to Standard CP.
+    \item \textbf{Generic Fair CP achieves perfect parity but trivially} --- by outputting sets of size 2.000 (i.e., always $\{\text{approve}, \text{reject}\}$), which is useless for decision-making.
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════
+% ══════════════════════════════════════════════════════════
+%  PART II — NOVELTY ANALYSIS
+% ══════════════════════════════════════════════════════════
+% ══════════════════════════════════════════════════════════
+
+\newpage
+\begin{center}
+\Large\bfseries\color{sectioncolor} Part II: Novelty \& Uniqueness Analysis
+\end{center}
+\vspace{0.5cm}
+
+\section{What Is Genuinely Novel}
+\label{sec:novel}
+
+\subsection{Contribution 1: The ``Coverage-Equity Paradox'' --- Naming and Formalizing an Open Problem}
+
+\begin{strengthbox}
+This is the \textbf{single strongest contribution} of the paper. The observation that enforcing equalized group coverage in conformal prediction can \emph{worsen} downstream fairness (via set-size inflation) is under-explored in the literature.
+\end{strengthbox}
+
+Cresswell et al.\ (ICLR 2025) demonstrated this tension in the context of downstream human decisions, and Charpentier (2024) discussed actuarial fairness and proxy bias in credit and insurance. However, \textbf{this paper is the first to}:
+
+\begin{itemize}[leftmargin=2em]
+    \item Give the phenomenon a concrete, citable name: \emph{the coverage-equity paradox}.
+    \item Prove \emph{mechanistically why} it occurs (Proposition 1: ambiguity width $= 2\hat{q}^{(a)} - 1$).
+    \item Quantify it empirically across multiple datasets, models, and fairness baselines.
+\end{itemize}
+
+This framing provides the community with vocabulary to discuss the tension. Strong AISTATS papers often contribute conceptual clarity rather than algorithmic complexity (analogous to how ``Fairness through Awareness'' by Dwork et al.\ contributed a framing rather than a complex algorithm).
+
+\subsection{Contribution 2: Proposition 1 --- A Mechanistic Explanation}
+
+The proof that the ambiguity interval width
+\[
+\mathcal{W}(\hat{q}^{(a)}) = \max\bigl(0,\; 2\hat{q}^{(a)} - 1\bigr)
+\]
+is monotonically increasing in the group quantile is \textbf{simple but powerful}. It provides a concrete, mathematical answer to the question: \emph{``Why do minority groups get larger prediction sets under group-conditional CP?''} This is a clean, self-contained result that is independently citable.
+
+\subsection{Contribution 3: Dual-Axis Fairness for Conformal Prediction}
+
+Most prior work on fair conformal prediction optimizes \textbf{one axis at a time}:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Method} & \textbf{Coverage Equity} & \textbf{Set-Size Equity} \\
+\midrule
+Standard CP & \texttimes & \texttimes \\
+Mondrian CP & \checkmark & \texttimes \\
+Generic Fair CP & \checkmark & trivially (uninformative sets) \\
+\textbf{FairTransCP} & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Formalizing set-size disparity $\mathcal{D}_{\text{size}}$ as a first-class fairness metric alongside coverage gap $\Delta_{\text{cov}}$ is a conceptual contribution that enriches the vocabulary of the field.
+
+\subsection{Contribution 4: Financial Regulatory Contextualization}
+
+No other conformal fairness paper explicitly connects conformal prediction to:
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{FCRA (Fair Credit Reporting Act)} --- Adverse action notices require clear reasons for denial; ambiguous sets $\{0,1\}$ provide none.
+    \item \textbf{ECOA (Equal Credit Opportunity Act)} --- Systematically larger prediction sets for minorities constitute disparate impact.
+    \item \textbf{EU AI Act} --- Credit scoring is classified as high-risk AI, requiring documented uncertainty calibration.
+\end{itemize}
+
+This unique positioning makes the paper immediately relevant to practitioners and regulators, not just the ML theory community.
+
+% ══════════════════════════════════════════════════════════
+\section{What Is Incremental (Solid but Not Groundbreaking)}
+\label{sec:incremental}
+
+\subsection{The $\lambda$-Interpolation Formula}
+
+The core calibration mechanism --- $\tilde{q}^{(g)} = (1-\lambda)\hat{q}^{(g)} + \lambda\hat{q}_{\text{pooled}}$ --- is a \textbf{convex combination of two known quantities}. It is conceptually simple. The novelty lies not in the formula itself but in the \emph{motivation} (the paradox) and the \emph{joint optimization framework} that selects $\lambda^*$.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lc@{}}
+\toprule
+\textbf{Aspect} & \textbf{Novelty Level} \\
+\midrule
+The interpolation formula & Low (standard convex combination) \\
+\emph{Why} we do it (the paradox motivation) & \textbf{High} \\
+Theorem 1 (coverage lower bound) & Moderate (correct but loose) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Theorem 1 --- Coverage Lower Bound}
+
+The theorem proves that the coverage loss under interpolation is bounded by the probability mass between the two quantiles, scaled by $\lambda$. This is \textbf{correct and useful as a safety argument}, but the bound is relatively loose --- it essentially restates the construction. A tighter, data-dependent bound would strengthen this.
+
+\subsection{Grid-Search $\lambda^*$ Optimization}
+
+The current implementation finds $\lambda^*$ via grid search over 21 values, minimizing a weighted loss. This is engineering, not theory. A proper constrained optimization (e.g., projected gradient descent on the joint loss) would be more principled.
+
+% ══════════════════════════════════════════════════════════
+\section{Honest Concerns a Reviewer Would Raise}
+\label{sec:concerns}
+
+\subsection{Concern 1: Technical Depth of the Method}
+
+\begin{cautionbox}
+\emph{``The method is a weighted average of two quantiles. Is this sufficient algorithmic novelty for AISTATS?''}
+\end{cautionbox}
+
+\noindent\textbf{Mitigation:} Frame the contribution as a \emph{problem formulation and empirical analysis paper} with theoretical backing, not a pure algorithms paper. Many impactful works have simple methods with strong framing (e.g., Platt scaling, temperature scaling, label smoothing).
+
+\subsection{Concern 2: Binary Classification Only}
+
+\begin{cautionbox}
+\emph{``All experiments are binary ($K=2$). Does this generalize to multi-class settings?''}
+\end{cautionbox}
+
+\noindent All three datasets, the Proposition 1 proof, and the empirical results assume $\mathcal{Y} = \{0,1\}$. The paper does not address multi-class generalization. Adding even one multi-class experiment would address this.
+
+\subsection{Concern 3: FairTransCP $\approx$ Standard CP in Many Settings}
+
+\begin{weaknessbox}
+This is the most significant empirical vulnerability. Examining Table~\ref{tab:main} carefully:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Configuration} & \textbf{FairTransCP Disp.} & \textbf{Standard CP Disp.} \\
+\midrule
+Taiwan Credit (RF) & 1.011 & 1.011 \\
+Taiwan Credit (XGB) & 1.016 & 1.016 \\
+Adult Income (RF) & 1.010 & 1.010 \\
+Adult Income (XGB) & 1.040 & 1.040 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In \textbf{at least 4--6 out of 9 configurations}, FairTransCP produces \emph{identical} numbers to Standard CP, suggesting $\lambda^* \approx 1$ (the optimizer simply recovers the marginal threshold). The method only clearly differentiates on the German Credit dataset and in comparison against Mondrian CP on Adult Income.
+\end{weaknessbox}
+
+\noindent\textbf{Mitigation:} Frame this as a \emph{feature}: the method adaptively detects when group-conditional adjustment is unnecessary and correctly reverts to the marginal baseline. The value is in the settings where it \emph{does} intervene (e.g., German Credit + RF, where it outperforms Mondrian CP).
+
+\subsection{Concern 4: Generic Fair CP Comparison}
+
+The Generic Fair CP achieves $\mathcal{D}_{\text{size}} = 1.000$ everywhere --- but by producing trivial sets of size 2.000. The paper correctly criticizes this, but a reviewer may counter: \emph{``Then set-size disparity alone is the wrong metric. Define a formal informativeness metric.''} Currently the paper lacks such a metric.
+
+\subsection{Concern 5: Small Datasets, Large Variance}
+
+German Credit has only $N = 1{,}000$. With a 50/25/25 split, the calibration set is $\sim$250 samples split across 2 groups ($\sim$125 each). The standard deviations (e.g., $\pm 0.040$, $\pm 0.083$) are large enough that many pairwise differences are \textbf{not statistically significant}. No significance tests are reported.
+
+\subsection{Concern 6: Missing Related Work}
+
+The paper does not discuss several relevant recent works:
+\begin{itemize}[leftmargin=2em]
+    \item Gibbs et al.\ (2023) --- ``Conformal prediction with conditional guarantees''
+    \item Jung et al.\ (2022) --- ``Batch multivalid conformal prediction''
+    \item Bastani et al.\ (2022) --- ``Practical adversarial multivalid conformal prediction''
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════
+\section{Novelty Summary: Ranked Assessment}
+\label{sec:ranked}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Ranked novelty assessment of FairTransCP contributions.}
+\label{tab:novelty_ranked}
+\begin{tabularx}{\textwidth}{@{}c>{\raggedright\arraybackslash}Xcc@{}}
+\toprule
+\textbf{\#} & \textbf{Contribution} & \textbf{Novelty} & \textbf{Expected Reception} \\
+\midrule
+1 & Coverage-Equity Paradox (naming + formalizing) & \textcolor{darkgreen}{\textbf{High}} & Strong hook; memorable framing \\
+2 & Proposition 1 (ambiguity width proof) & \textcolor{darkgreen}{\textbf{Mod--High}} & Clean, citable, mechanistic \\
+3 & Dual-axis fairness metrics ($\Delta_{\text{cov}} + \mathcal{D}_{\text{size}}$) & \textcolor{warnorange}{\textbf{Moderate}} & Good framing, not technically novel \\
+4 & Financial regulatory context (FCRA/ECOA/EU AI Act) & \textcolor{darkgreen}{\textbf{Unique}} & Differentiates from pure ML papers \\
+5 & $\lambda$-interpolation + Theorem 1 & \textcolor{warnorange}{\textbf{Moderate}} & Simple method; loose bound \\
+6 & Empirical evaluation (3$\times$3$\times$5 baselines) & \textcolor{warnorange}{\textbf{Solid}} & Has gaps (binary-only; $\approx$ StdCP) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ══════════════════════════════════════════════════════════
+\section{Actionable Recommendations to Strengthen the Submission}
+\label{sec:recommendations}
+
+\begin{recommendbox}
+\textbf{R1: Tighten Theorem 1.} \\
+Replace the current loose bound with a tighter, data-dependent bound using the empirical CDF of group scores. For instance, express the coverage loss in terms of the Kolmogorov--Smirnov distance between the group and pooled score distributions.
+\end{recommendbox}
+
+\begin{recommendbox}
+\textbf{R2: Add a multi-class experiment.} \\
+Even one dataset with $K \ge 3$ (e.g., a multi-class credit risk tier: low/medium/high, or a standard benchmark like MNIST/CIFAR adapted to the setting) would neutralize the ``binary-only'' concern.
+\end{recommendbox}
+
+\begin{recommendbox}
+\textbf{R3: Report statistical significance.} \\
+Add paired $t$-tests or Wilcoxon signed-rank tests between FairTransCP and each baseline across the 5 random trials. Report $p$-values alongside the means.
+\end{recommendbox}
+
+\begin{recommendbox}
+\textbf{R4: Define a formal informativeness metric.} \\
+Introduce $\text{Informativeness}(C) = 1 - \frac{\bar{|C|}}{K}$ (fraction of the label space excluded by the prediction set) to formally counter the Generic Fair CP's trivial parity.
+\end{recommendbox}
+
+\begin{recommendbox}
+\textbf{R5: Frame $\lambda^* \approx 1$ as adaptive behavior.} \\
+Add a paragraph explicitly acknowledging that in low-disparity settings, FairTransCP correctly recovers Standard CP. Frame this as the method \emph{adapting to the data} (a desirable property), not a failure.
+\end{recommendbox}
+
+\begin{recommendbox}
+\textbf{R6: Expand related work.} \\
+Cite and discuss Gibbs et al.\ (2023), Jung et al.\ (2022), and Bastani et al.\ (2022). Position FairTransCP relative to multivalid and conditional conformal prediction frameworks.
+\end{recommendbox}
+
+% ══════════════════════════════════════════════════════════
+\section{Repository and Reproducibility}
+\label{sec:repo}
+
+The full codebase is publicly available and structured for reproducibility:
+
+\begin{center}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Component} & \textbf{Location} \\
+\midrule
+Core algorithm (FairTransCP) & \texttt{src/conformal/fair\_conformal.py} \\
+Base conformal predictor & \texttt{src/conformal/base.py} \\
+SOTA baselines (Mondrian, LC-CP, Generic) & \texttt{src/conformal/baselines.py} \\
+Fairness metrics & \texttt{src/fairness/metrics.py} \\
+Data loaders (German, Taiwan, Adult) & \texttt{src/data/loaders.py} \\
+Experiment runner & \texttt{experiments/run\_baseline.py} \\
+Interactive demo & \texttt{notebooks/demo.ipynb} (Google Colab) \\
+LaTeX manuscript & \texttt{paper/main.tex} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent\textbf{Repository:} \url{https://github.com/aarushdubey/fair-conformal-finance}
+
+% ══════════════════════════════════════════════════════════
+\section{Conclusion}
+\label{sec:conclusion}
+
+The FairTransCP project contributes a well-motivated \emph{problem formulation} (the coverage-equity paradox), a \emph{formal explanation} of its mechanism (Proposition 1), and a \emph{practical calibration framework} with theoretical safety guarantees (Theorem 1). The strongest novelty lies in the conceptual framing and the regulatory contextualization, rather than in algorithmic complexity. The empirical evaluation is comprehensive in terms of baselines but has gaps in dataset diversity (binary-only) and statistical rigor. Addressing the six recommendations in Section~\ref{sec:recommendations} would significantly strengthen the submission for AISTATS 2027 review.
+
+\end{document}

@@ -72,7 +72,9 @@ fair-conformal-finance/
 ├── src/                     # Source code (Conformal, Data, Fairness, Models, Utils)
 ├── experiments/             # Baseline runner & Figure generation
 ├── notebooks/               # 1-click Google Colab demo
-├── paper/                   # AISTATS 2027 LaTeX manuscript
+├── webapp/                  # Interactive Streamlit demonstration dashboard
+├── paper/                   # Conference manuscripts (AISTATS & IEEE LaTeX sources)
+├── docs/                    # 20-page project report, presentation deck, & guides
 ├── results/                 # Publication figures & benchmark tables
 ├── tests/                   # Comprehensive unit & integration tests
 ├── pyproject.toml           # Professional Python packaging
@@ -80,9 +82,14 @@ fair-conformal-finance/
 └── README.md                # Project documentation
 ```
 
-## Documentation
+## Documentation & Deliverables
 - [Architecture Overview](ARCHITECTURE.md) — Deep dive into the system design.
 - [Contributing Guide](CONTRIBUTING.md) — How to add new methods or datasets.
+- [AISTATS 2027 Manuscript](paper/main.tex) — Full conference submission LaTeX source.
+- [IEEE Conference Paper](paper/ieee_conference_paper.tex) — Verified 6-page IEEE format.
+- [20-Page Project Report](docs/report_template.html) — Automated generation script in `docs/build_report.py`.
+- [Presentation Deck](docs/FairTransCP_Presentation.pptx) — 12-slide executive slide deck generated via `docs/generate_ppt.py`.
+- [Live Web Demo](https://fairtranscp-demo.onrender.com) — Hosted interactive simulator.
 
 
 ## Quick Start

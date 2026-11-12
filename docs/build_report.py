@@ -6,10 +6,13 @@ import fitz
 def main():
     print("Building FairTransCP Project Report...")
     
-    logo_path = "/Users/aarushdubey/Downloads/AISTAT2027/AISTAT2027/report_assets/page1_img1_26.png"
-    pareto_path = "/Users/aarushdubey/Downloads/AISTAT2027/AISTAT2027/fair-conformal-finance/paper/figures/pareto_coverage_vs_disparity.png"
-    disparity_path = "/Users/aarushdubey/Downloads/AISTAT2027/AISTAT2027/fair-conformal-finance/paper/figures/set_size_disparity_comparison.png"
-    template_path = "/Users/aarushdubey/Downloads/AISTAT2027/AISTAT2027/report_template.html"
+    docs_dir = os.path.dirname(os.path.abspath(__file__))
+    repo_root = os.path.dirname(docs_dir)
+    
+    logo_path = os.path.join(docs_dir, "report_assets", "page1_img1_26.png")
+    pareto_path = os.path.join(repo_root, "paper", "figures", "pareto_coverage_vs_disparity.png")
+    disparity_path = os.path.join(repo_root, "paper", "figures", "set_size_disparity_comparison.png")
+    template_path = os.path.join(docs_dir, "report_template.html")
     
     with open(logo_path, "rb") as f:
         logo_b64 = base64.b64encode(f.read()).decode("utf-8")
@@ -25,11 +28,11 @@ def main():
     html = html.replace("###PARETO_B64###", pareto_b64)
     html = html.replace("###DISPARITY_B64###", disparity_b64)
     
-    rendered_html_path = "/Users/aarushdubey/Downloads/AISTAT2027/AISTAT2027/report_rendered.html"
+    rendered_html_path = os.path.join(docs_dir, "report_rendered.html")
     with open(rendered_html_path, "w", encoding="utf-8") as f:
         f.write(html)
         
-    raw_pdf = "/Users/aarushdubey/Downloads/AISTAT2027/AISTAT2027/report_raw.pdf"
+    raw_pdf = os.path.join(docs_dir, "report_raw.pdf")
     print("Invoking Chrome headless to generate PDF...")
     chrome_cmd = [
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -48,8 +51,7 @@ def main():
     total_pages = len(doc)
     print(f"Total pages: {total_pages}")
     
-    final_pdf_1 = "/Users/aarushdubey/Downloads/AISTAT2027/AISTAT2027/FairTransCP_Project_Report.pdf"
-    final_pdf_2 = "/Users/aarushdubey/Downloads/FairTransCP_Project_Report.pdf"
+    final_pdf = os.path.join(docs_dir, "FairTransCP_Project_Report.pdf")
     
     # Map pages to their displayed page numbers in Index
     # Page 1: Cover (no number)
@@ -70,12 +72,15 @@ def main():
             page.insert_text(fitz.Point(55, 45), header_text, fontname="times-italic", fontsize=9, color=(0.4, 0.4, 0.4))
             page.draw_line(fitz.Point(55, 50), fitz.Point(540, 50), color=(0.7, 0.7, 0.7), width=0.5)
 
-    doc.save(final_pdf_1)
-    doc.save(final_pdf_2)
-    print("Saved final reports to:")
-    print(f"  -> {final_pdf_1}")
-    print(f"  -> {final_pdf_2}")
+    doc.save(final_pdf)
+    
+    # Clean up intermediate files
+    if os.path.exists(raw_pdf):
+        os.remove(raw_pdf)
+    if os.path.exists(rendered_html_path):
+        os.remove(rendered_html_path)
+        
+    print(f"Saved final report to: {final_pdf}")
 
 if __name__ == "__main__":
     main()
-
