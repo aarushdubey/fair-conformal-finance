@@ -87,8 +87,8 @@ fair-conformal-finance/
 - [Contributing Guide](CONTRIBUTING.md) — How to add new methods or datasets.
 - [AISTATS 2027 Manuscript](paper/main.tex) — Full conference submission LaTeX source.
 - [IEEE Conference Paper](paper/ieee_conference_paper.tex) — Verified 6-page IEEE format.
-- [20-Page Project Report](docs/report_template.html) — Automated generation script in `docs/build_report.py`.
-- [Presentation Deck](docs/FairTransCP_Presentation.pptx) — 12-slide executive slide deck generated via `docs/generate_ppt.py`.
+- [20-Page Project Report](docs/report_template.html) — Typeset in Bookman Old Style.
+- [Presentation Deck](docs/FairTransCP_Presentation.pptx) — 12-slide executive slide deck.
 - [Live Web Demo](https://fairtranscp-demo.onrender.com) — Hosted interactive simulator.
 
 
