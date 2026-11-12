@@ -19,4 +19,4 @@ paper/*.log
 paper/*.out
 paper/*.bbl
 paper/*.blg
-docs/
+docs/*.pdf
