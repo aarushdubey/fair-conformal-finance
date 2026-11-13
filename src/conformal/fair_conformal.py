@@ -127,7 +127,7 @@ class FairTransCP:
         and set-size disparity subject to worst-group coverage constraints.
         """
         groups = np.unique(sensitive_attr)
-        lambdas = np.linspace(0, 1, 21)
+        lambdas = np.linspace(0.2, 0.5, 7)
         best_lam = float(self.fairness_weight)
         min_loss = float("inf")
         marginal_q = self._base_cp.threshold

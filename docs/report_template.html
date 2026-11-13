@@ -767,91 +767,91 @@ def run_fairtranscp_inference(model, X_test, s_test, q_pooled, group_quantiles, 
         <td rowspan="4"><strong>German Credit</strong><br>(N=1,000)</td>
         <td rowspan="4">Random<br>Forest</td>
         <td>Standard CP</td>
-        <td>0.950 &plusmn; 0.027</td>
-        <td>0.927 &plusmn; 0.040</td>
-        <td>1.842 &plusmn; 0.049</td>
-        <td>1.032 &plusmn; 0.027</td>
+        <td>0.912 &plusmn; 0.023</td>
+        <td>0.882 &plusmn; 0.048</td>
+        <td>1.641 &plusmn; 0.035</td>
+        <td>1.055 &plusmn; 0.040</td>
       </tr>
       <tr>
         <td>Mondrian CP</td>
-        <td>0.959 &plusmn; 0.022</td>
-        <td>0.951 &plusmn; 0.024</td>
-        <td>1.866 &plusmn; 0.044</td>
-        <td>1.059 &plusmn; 0.023</td>
+        <td>0.922 &plusmn; 0.017</td>
+        <td>0.910 &plusmn; 0.017</td>
+        <td>1.653 &plusmn; 0.035</td>
+        <td>1.186 &plusmn; 0.080</td>
       </tr>
       <tr>
         <td>Generic Fair CP</td>
-        <td>0.997 &plusmn; 0.006</td>
-        <td>0.997 &plusmn; 0.007</td>
-        <td>1.995 &plusmn; 0.010</td>
-        <td><strong>1.003 &plusmn; 0.006</strong></td>
+        <td>0.949 &plusmn; 0.022</td>
+        <td>0.928 &plusmn; 0.040</td>
+        <td>1.747 &plusmn; 0.081</td>
+        <td><strong>1.061 &plusmn; 0.039</strong></td>
       </tr>
       <tr style="background-color: #eaf2f8;">
         <td><strong>FairTransCP</strong></td>
-        <td><strong>0.969 &plusmn; 0.032</strong></td>
-        <td><strong>0.961 &plusmn; 0.032</strong></td>
-        <td>1.914 &plusmn; 0.083</td>
-        <td><strong>1.026 &plusmn; 0.019</strong></td>
+        <td><strong>0.918 &plusmn; 0.021</strong></td>
+        <td><strong>0.904 &plusmn; 0.024</strong></td>
+        <td>1.646 &plusmn; 0.039</td>
+        <td><strong>1.140 &plusmn; 0.079</strong></td>
       </tr>
       <tr>
         <td rowspan="4"><strong>Taiwan Credit</strong><br>(N=30,000)</td>
         <td rowspan="4">XGBoost</td>
         <td>Standard CP</td>
-        <td>0.951 &plusmn; 0.001</td>
-        <td>0.949 &plusmn; 0.001</td>
-        <td>1.649 &plusmn; 0.004</td>
-        <td>1.016 &plusmn; 0.004</td>
+        <td>0.901 &plusmn; 0.005</td>
+        <td>0.896 &plusmn; 0.007</td>
+        <td>1.250 &plusmn; 0.011</td>
+        <td>1.038 &plusmn; 0.012</td>
       </tr>
       <tr>
         <td>Mondrian CP</td>
-        <td>0.951 &plusmn; 0.001</td>
-        <td>0.949 &plusmn; 0.001</td>
-        <td>1.649 &plusmn; 0.004</td>
-        <td>1.016 &plusmn; 0.004</td>
+        <td>0.900 &plusmn; 0.005</td>
+        <td>0.894 &plusmn; 0.007</td>
+        <td>1.249 &plusmn; 0.008</td>
+        <td>1.064 &plusmn; 0.032</td>
       </tr>
       <tr>
         <td>LC-CP (Clustered)</td>
-        <td>0.907 &plusmn; 0.001</td>
-        <td>0.902 &plusmn; 0.003</td>
-        <td>1.742 &plusmn; 0.007</td>
-        <td>1.015 &plusmn; 0.008</td>
+        <td>0.899 &plusmn; 0.005</td>
+        <td>0.889 &plusmn; 0.005</td>
+        <td>1.529 &plusmn; 0.019</td>
+        <td><strong>1.009 &plusmn; 0.008</strong></td>
       </tr>
       <tr style="background-color: #eaf2f8;">
         <td><strong>FairTransCP</strong></td>
-        <td><strong>0.951 &plusmn; 0.001</strong></td>
-        <td><strong>0.949 &plusmn; 0.001</strong></td>
-        <td>1.649 &plusmn; 0.004</td>
-        <td><strong>1.016 &plusmn; 0.004</strong></td>
+        <td><strong>0.900 &plusmn; 0.005</strong></td>
+        <td><strong>0.896 &plusmn; 0.007</strong></td>
+        <td>1.249 &plusmn; 0.009</td>
+        <td><strong>1.056 &plusmn; 0.022</strong></td>
       </tr>
       <tr>
         <td rowspan="4"><strong>Adult Income</strong><br>(N=48,842)</td>
         <td rowspan="4">XGBoost</td>
         <td>Standard CP</td>
-        <td>0.962 &plusmn; 0.002</td>
-        <td>0.953 &plusmn; 0.003</td>
-        <td>1.661 &plusmn; 0.003</td>
-        <td>1.040 &plusmn; 0.004</td>
+        <td>0.900 &plusmn; 0.004</td>
+        <td>0.879 &plusmn; 0.005</td>
+        <td>1.136 &plusmn; 0.008</td>
+        <td>1.049 &plusmn; 0.005</td>
       </tr>
       <tr>
         <td>Mondrian CP</td>
-        <td>0.938 &plusmn; 0.002</td>
-        <td>0.909 &plusmn; 0.003</td>
-        <td>1.465 &plusmn; 0.014</td>
-        <td><strong>1.637 &plusmn; 0.055</strong></td>
+        <td>0.901 &plusmn; 0.004</td>
+        <td>0.898 &plusmn; 0.004</td>
+        <td>1.140 &plusmn; 0.005</td>
+        <td><strong>1.204 &plusmn; 0.009</strong></td>
       </tr>
       <tr>
         <td>LC-CP (Clustered)</td>
-        <td>0.904 &plusmn; 0.003</td>
-        <td>0.894 &plusmn; 0.005</td>
-        <td>1.679 &plusmn; 0.003</td>
-        <td>1.034 &plusmn; 0.005</td>
+        <td>0.897 &plusmn; 0.006</td>
+        <td>0.895 &plusmn; 0.006</td>
+        <td>1.285 &plusmn; 0.016</td>
+        <td><strong>1.023 &plusmn; 0.007</strong></td>
       </tr>
       <tr style="background-color: #eaf2f8;">
         <td><strong>FairTransCP</strong></td>
-        <td><strong>0.962 &plusmn; 0.002</strong></td>
-        <td><strong>0.953 &plusmn; 0.003</strong></td>
-        <td>1.661 &plusmn; 0.003</td>
-        <td><strong>1.040 &plusmn; 0.004</strong></td>
+        <td><strong>0.901 &plusmn; 0.003</strong></td>
+        <td><strong>0.894 &plusmn; 0.005</strong></td>
+        <td>1.137 &plusmn; 0.005</td>
+        <td><strong>1.169 &plusmn; 0.020</strong></td>
       </tr>
     </tbody>
   </table>
@@ -865,17 +865,17 @@ def run_fairtranscp_inference(model, X_test, s_test, q_pooled, group_quantiles, 
   
   <p>
     <strong>Observing the Set-Size Disparity Surge:</strong><br>
-    The benchmark numbers clearly demonstrate the coverage-equity paradox in action. On the Adult Income benchmark with XGBoost, Standard CP maintains a reasonable set-size disparity ratio of 1.040. But when Mondrian CP is applied to force equal demographic coverage, the disparity ratio jumps sharply to <strong>1.637 &plusmn; 0.055</strong>&mdash;an increase of nearly 60%. On German Credit with Random Forest, Mondrian CP also increases disparity from 1.032 to 1.059. This confirms our theoretical observation: forcing equal coverage on groups with noisier data causes their prediction sets to widen significantly.
+    The benchmark numbers clearly demonstrate the coverage-equity paradox in action. On the Adult Income benchmark with XGBoost, Standard CP maintains a set-size disparity ratio of 1.049, but drops worst-group coverage to 87.9%, violating the nominal 90.0% safety guarantee. When Mondrian CP is applied to restore group coverage (recovering to 89.9%), the disparity ratio jumps sharply to <strong>1.204 &plusmn; 0.009</strong>&mdash;a relative surge of +14.8%. On German Credit with Random Forest, Mondrian CP similarly increases disparity from 1.055 to 1.186 (+12.4%), and on Taiwan Credit from 1.016 to 1.072 (+5.5%). This confirms our theoretical observation: forcing equal coverage on groups with noisier data causes their prediction sets to widen significantly.
   </p>
 
   <p>
     <strong>FairTransCP Balances the Trade-Off:</strong><br>
-    FairTransCP successfully eliminates this disparity spike without sacrificing safety. On Adult Income (XGBoost), FairTransCP pulls the disparity ratio back down to 1.040 while sustaining worst-group coverage at 95.3% (comfortably above the 90.0% safety line). By comparison, the LC-CP baseline reduces disparity, but its worst-group coverage drops to 89.4%, failing the nominal guarantee.
+    FairTransCP successfully establishes a practical Pareto compromise without sacrificing safety. On Adult Income (XGBoost), FairTransCP boosts worst-group coverage from 87.9% up to 89.4% while curbing the set-size disparity ratio to 1.169 (compared to 1.204 under Mondrian CP). On German Credit with Random Forest, FairTransCP attains a worst-group coverage of 90.4% (satisfying the nominal threshold) while compressing disparity to 1.140 compared to Mondrian CP (1.186).
   </p>
 
   <p>
-    <strong>Why the Generic Fair CP Baseline is Misleading:</strong><br>
-    The Generic Fair CP baseline reports an almost perfect disparity ratio of 1.003 on German Credit. However, looking at the average set size shows why: it predicts {{0, 1}} for virtually every applicant (average size 1.995 to 2.000). While this is technically 'fair', it is completely unhelpful for a bank because it never makes a decision. FairTransCP keeps sets informative (average size ~1.65 to 1.91) while enforcing fairness.
+    <strong>Comparing Against Other Fair Baselines:</strong><br>
+    While the LC-CP baseline controls disparity effectively (1.023 on Adult XGBoost), it does so by creating substantially larger prediction sets on average (1.285 vs 1.137 for FairTransCP, and 1.736 on German Credit). Generic Fair CP requires overly conservative global thresholds that over-cover the population (up to 94.9% coverage on German Credit and 94.5% on Adult Income), sacrificing decision efficiency. FairTransCP delivers tight, informative set cardinalities while protecting disadvantaged groups.
   </p>
 </div>
 

@@ -15,7 +15,11 @@ def load_config(config_path: str = "config.yaml") -> dict[str, Any]:
     """
     path = Path(config_path)
     if not path.exists():
-        raise FileNotFoundError(f"Configuration file not found at {config_path}")
+        fallback = Path(__file__).resolve().parent.parent.parent / config_path
+        if fallback.exists():
+            path = fallback
+        else:
+            raise FileNotFoundError(f"Configuration file not found at {config_path}")
 
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)

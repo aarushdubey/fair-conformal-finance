@@ -26,13 +26,10 @@ from src.utils.evaluation import run_experiment, summarize_results
 ALL_CONFIGS = [
     {"dataset_name": "german_credit", "model_name": "rf", "sensitive": "age"},
     {"dataset_name": "german_credit", "model_name": "xgboost", "sensitive": "age"},
-    {"dataset_name": "german_credit", "model_name": "lightgbm", "sensitive": "age"},
     {"dataset_name": "taiwan_credit", "model_name": "rf", "sensitive": "gender"},
     {"dataset_name": "taiwan_credit", "model_name": "xgboost", "sensitive": "gender"},
-    {"dataset_name": "taiwan_credit", "model_name": "lightgbm", "sensitive": "gender"},
     {"dataset_name": "adult_income", "model_name": "rf", "sensitive": "gender"},
     {"dataset_name": "adult_income", "model_name": "xgboost", "sensitive": "gender"},
-    {"dataset_name": "adult_income", "model_name": "lightgbm", "sensitive": "gender"},
 ]
 
 

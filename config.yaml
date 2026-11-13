@@ -9,8 +9,8 @@ experiment:
 
 conformal:
   alpha: 0.1
-  score_fn: "aps" # Options: 'softmax', 'aps'
-  fairness_weight: 0.4
+  score_fn: "softmax" # Options: 'softmax', 'aps'
+  fairness_weight: 0.35
   optimize_lambda: true
   beta: 0.1
 

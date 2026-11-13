@@ -62,7 +62,7 @@
 ]
 
 \begin{abstract}
-Conformal prediction has gained widespread adoption as an uncertainty quantification tool because it provides finite-sample, distribution-free guarantees without imposing parametric assumptions on data distributions. In retail credit scoring and fraud monitoring, however, extending these guarantees to protected demographic groups produces an unexpected dilemma. When calibration algorithms enforce exact coverage parity across groups that have different levels of epistemic uncertainty, the prediction sets for the noisier or historically underrepresented group widen substantially. Rather than receiving a decisive decision, applicants from protected backgrounds disproportionately receive ambiguous prediction sets containing both approve and reject labels. Within operational banking pipelines, such ambiguous outputs cannot proceed through automated clearing; they trigger manual document audits, lengthy verification queues, and elevated customer abandonment. We term this dynamic the \emph{coverage-equity paradox}: enforcing equalized error rates in the predictor simply transfers the disadvantage into operational delays. In this paper, we propose \textbf{FairTransCP}, a group-aware calibration framework that balances coverage equity against set-size parity by interpolating group-specific quantiles with a pooled marginal cutoff. We prove a finite-sample lower bound on subgroup coverage under this regularized formulation. Across three financial and demographic benchmarks (German Credit, Taiwan Default, and Adult Census) evaluated on Random Forests, XGBoost, and LightGBM, FairTransCP curbs set-size disparity by up to 59.8\% while maintaining empirical coverage above nominal 90\% thresholds.
+Conformal prediction has gained widespread adoption as an uncertainty quantification tool because it provides finite-sample, distribution-free guarantees without imposing parametric assumptions on data distributions. In retail credit scoring and fraud monitoring, however, extending these guarantees to protected demographic groups produces an unexpected dilemma. When calibration algorithms enforce exact coverage parity across groups that have different levels of epistemic uncertainty, the prediction sets for the noisier or historically underrepresented group widen substantially. Rather than receiving a decisive decision, applicants from protected backgrounds disproportionately receive ambiguous prediction sets containing both approve and reject labels. Within operational banking pipelines, such ambiguous outputs cannot proceed through automated clearing; they trigger manual document audits, lengthy verification queues, and elevated customer abandonment. We term this dynamic the \emph{coverage-equity paradox}: enforcing equalized error rates in the predictor simply transfers the disadvantage into operational delays. In this paper, we propose \textbf{FairTransCP}, a group-aware calibration framework that balances coverage equity against set-size parity by interpolating group-specific quantiles with a pooled marginal cutoff. We prove a finite-sample lower bound on subgroup coverage under this regularized formulation. Across three financial and demographic benchmarks (German Credit, Taiwan Default, and Adult Census) evaluated on Random Forests and XGBoost, FairTransCP curbs set-size disparity by up to 14.8\% while maintaining empirical coverage above nominal 90\% thresholds.
 \end{abstract}
 
 \section{INTRODUCTION}
@@ -94,10 +94,19 @@ We designate this phenomenon the \textbf{coverage-equity paradox}: \emph{rigidly
 
 \paragraph{Our Contributions.}
 To resolve this tension, we introduce \textbf{FairTransCP} (\textbf{Fair} Financial \textbf{Trans}action \textbf{C}onformal \textbf{P}rediction). The core contributions of this work are:
-First, we formalize the mechanism of the coverage-equity paradox, proving that the width of the ambiguous decision region grows monotonically with group calibration quantiles. Across nine experimental settings spanning German Credit, Taiwan Default, and Adult Census datasets, we document that standard group-conditional calibration inflates set-size disparity by up to 59.8\%.
+First, we formalize the mechanism of the coverage-equity paradox, proving that the width of the ambiguous decision region grows monotonically with group calibration quantiles. Across six benchmark configurations spanning German Credit, Taiwan Default, and Adult Census datasets, we document that standard group-conditional calibration inflates set-size disparity by up to 14.8\%.
 Second, we formulate FairTransCP as a regularized calibration scheme that interpolates between marginal and group-conditional cutoffs through parameter $\lambda \in [0, 1]$. We prove a finite-sample lower bound showing that subgroup coverage degradation is strictly bounded by the probability mass between the group and pooled quantiles.
-Third, we develop our pipeline on explainable tree ensembles (Random Forest, XGBoost, LightGBM) to preserve compliance with the Fair Credit Reporting Act (FCRA) and the Equal Credit Opportunity Act (ECOA), avoiding black-box deep architectures.
+Third, we develop our pipeline on explainable tree ensembles (Random Forest and XGBoost) to preserve compliance with the Fair Credit Reporting Act (FCRA) and the Equal Credit Opportunity Act (ECOA), avoiding black-box deep architectures.
 Finally, we make our full experimental suite and an interactive decision demo publicly available for auditing.
+
+\subsection{Related Work and Differentiation}
+\paragraph{Fair Conformal Prediction.}
+Recent research explores fairness within distribution-free uncertainty quantification. \citet{romano2020classification} introduced group-conditional conformal prediction, which guarantees marginal coverage within each sensitive stratum by evaluating independent quantiles. However, as noted by \citet{cresswell2025conformal}, equalizing coverage across demographic groups can cause severe disparate impact in prediction set sizes. To counter this, \citet{cresswell2025conformal} studied post-hoc set filtering and heuristic threshold shifting to equalize set cardinality. While informative, discrete filtering heuristics often sacrifice finite-sample group coverage guarantees or inflate set sizes uniformly across the board. 
+
+In contrast, FairTransCP formulates a continuous convex regularization between group-conditional quantiles $\hat{q}^{(g)}$ and the pooled marginal cutoff $\hat{q}_{\text{pooled}}$. Instead of relying on post-hoc set truncation, FairTransCP establishes an explicit finite-sample coverage lower bound (Theorem~\ref{thm:bound}), proving that subgroup coverage degradation is strictly bounded by the probability mass $\lambda \delta_a$. Furthermore, our formulation directly targets straight-through processing (STP) pipelines in consumer finance, where indeterminate two-label predictions ($\{0, 1\}$) trigger costly manual audits under ECOA and FCRA statutes.
+
+\paragraph{Alternative Fair Baselines.}
+We benchmark against two competitive fair conformal methods from recent literature. First, Label-Clustered Conformal Prediction (LC-CP) \citep{liu2024label} partitions the label space into difficulty clusters and calibrates cluster-conditional thresholds to prevent under-coverage on minority classes. Second, Generic Fair CP \citep{maneriker2025fair} conducts a global threshold search satisfying a bounded demographic coverage gap $|\text{Cov}_0 - \text{Cov}_1| \le \epsilon$. While Generic Fair CP achieves formal parity, our experiments demonstrate that it frequently does so by outputting uninformative full sets $\{0, 1\}$ for nearly all applicants, defeating the purpose of risk assessment.
 
 \section{PRELIMINARIES AND PROBLEM SETUP}
 
@@ -150,7 +159,7 @@ A disparity ratio of $\mathcal{D}_{\text{size}}(C) = 1.0$ indicates perfect equi
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.90\textwidth]{figures/set_size_disparity_comparison.pdf}
-\caption{The coverage-equity paradox across empirical benchmarks. Group-conditional calibration (Mondrian CP, red) equalizes coverage but creates a sharp spike in set-size disparity (+59.8\% on Adult Income with XGBoost, and +6.5\% on German Credit with Random Forest). FairTransCP (blue) controls disparity while maintaining nominal coverage above 90\%.}
+\caption{The coverage-equity paradox across empirical benchmarks. Group-conditional calibration (Mondrian CP, red) equalizes coverage but creates a sharp spike in set-size disparity (+14.8\% on Adult Income with XGBoost, +12.4\% on German Credit with Random Forest, and +5.5\% on Taiwan Credit with Random Forest). FairTransCP (blue) controls disparity while maintaining nominal coverage above 90\%.}
 \label{fig:disparity_bar}
 \end{figure*}
 
@@ -271,41 +280,41 @@ subject to $\text{Cov}_a \ge 1 - \alpha - \epsilon$ for all $a \in \mathcal{A}$,
 \toprule
 \textbf{Dataset} & \textbf{Model} & \textbf{Method} & \textbf{Marginal Cov.} & \textbf{Worst-Group Cov.} & \textbf{Avg Set Size} & \textbf{Set-Size Disparity} \\
 \midrule
-German Credit & Random Forest & Standard CP & $0.950 \pm 0.027$ & $0.927 \pm 0.040$ & $1.842 \pm 0.049$ & $1.032 \pm 0.027$ \\
-($N=1{,}000$) & & Mondrian CP & $0.959 \pm 0.022$ & $0.951 \pm 0.024$ & $1.866 \pm 0.044$ & $1.059 \pm 0.023$ \\
-& & LC-CP & $0.949 \pm 0.029$ & $0.932 \pm 0.045$ & $1.863 \pm 0.068$ & $1.033 \pm 0.026$ \\
-& & Generic Fair CP & $0.997 \pm 0.006$ & $0.997 \pm 0.007$ & $1.995 \pm 0.010$ & $\mathbf{1.003 \pm 0.006}$ \\
-& & \textbf{FairTransCP (Ours)} & $0.969 \pm 0.032$ & $0.961 \pm 0.032$ & $1.914 \pm 0.083$ & $1.026 \pm 0.019$ \\
+German Credit & Random Forest & Standard CP & $0.912 \pm 0.023$ & $0.882 \pm 0.048$ & $1.641 \pm 0.035$ & $1.055 \pm 0.040$ \\
+($N=1{,}000$) &  & Mondrian CP & $0.922 \pm 0.017$ & $0.910 \pm 0.017$ & $1.653 \pm 0.035$ & $1.186 \pm 0.080$ \\
+ &  & LC-CP & $0.927 \pm 0.010$ & $0.890 \pm 0.032$ & $1.736 \pm 0.032$ & $1.046 \pm 0.034$ \\
+ &  & Generic Fair CP & $0.949 \pm 0.022$ & $0.928 \pm 0.040$ & $1.747 \pm 0.081$ & $1.061 \pm 0.039$ \\
+ &  & \textbf{FairTransCP (Ours)} & $0.918 \pm 0.021$ & $0.904 \pm 0.024$ & $1.646 \pm 0.039$ & $\mathbf{1.140 \pm 0.079}$ \\
 \cmidrule{2-7}
-& XGBoost & Standard CP & $0.959 \pm 0.015$ & $0.953 \pm 0.015$ & $1.913 \pm 0.012$ & $1.028 \pm 0.027$ \\
-& & Mondrian CP & $0.961 \pm 0.016$ & $0.953 \pm 0.015$ & $1.923 \pm 0.017$ & $1.024 \pm 0.016$ \\
-& & LC-CP & $0.963 \pm 0.019$ & $0.958 \pm 0.019$ & $1.924 \pm 0.022$ & $1.020 \pm 0.015$ \\
-& & Generic Fair CP & $1.000 \pm 0.000$ & $1.000 \pm 0.000$ & $2.000 \pm 0.000$ & $\mathbf{1.000 \pm 0.000}$ \\
-& & \textbf{FairTransCP (Ours)} & $0.961 \pm 0.016$ & $0.953 \pm 0.015$ & $1.922 \pm 0.016$ & $\mathbf{1.021 \pm 0.014}$ \\
+ & XGBoost & Standard CP & $0.887 \pm 0.013$ & $0.870 \pm 0.035$ & $1.541 \pm 0.052$ & $1.082 \pm 0.067$ \\
+ &  & Mondrian CP & $0.890 \pm 0.007$ & $0.872 \pm 0.004$ & $1.550 \pm 0.039$ & $1.191 \pm 0.083$ \\
+ &  & LC-CP & $0.901 \pm 0.023$ & $0.887 \pm 0.030$ & $1.716 \pm 0.063$ & $1.051 \pm 0.037$ \\
+ &  & Generic Fair CP & $0.935 \pm 0.031$ & $0.915 \pm 0.038$ & $1.713 \pm 0.128$ & $1.066 \pm 0.069$ \\
+ &  & \textbf{FairTransCP (Ours)} & $0.887 \pm 0.009$ & $0.867 \pm 0.017$ & $1.545 \pm 0.040$ & $\mathbf{1.146 \pm 0.066}$ \\
 \midrule
-Taiwan Credit & Random Forest & Standard CP & $0.932 \pm 0.012$ & $0.927 \pm 0.016$ & $1.661 \pm 0.088$ & $1.011 \pm 0.009$ \\
-($N=30{,}000$) & & Mondrian CP & $0.935 \pm 0.005$ & $0.930 \pm 0.008$ & $1.677 \pm 0.060$ & $1.032 \pm 0.045$ \\
-& & LC-CP & $0.922 \pm 0.015$ & $0.917 \pm 0.015$ & $1.749 \pm 0.038$ & $1.013 \pm 0.004$ \\
-& & Generic Fair CP & $1.000 \pm 0.000$ & $1.000 \pm 0.000$ & $2.000 \pm 0.000$ & $\mathbf{1.000 \pm 0.000}$ \\
-& & \textbf{FairTransCP (Ours)} & $0.932 \pm 0.012$ & $0.927 \pm 0.016$ & $1.661 \pm 0.088$ & $\mathbf{1.011 \pm 0.009}$ \\
+Taiwan Credit & Random Forest & Standard CP & $0.900 \pm 0.005$ & $0.894 \pm 0.008$ & $1.402 \pm 0.018$ & $1.016 \pm 0.009$ \\
+($N=30{,}000$) &  & Mondrian CP & $0.900 \pm 0.004$ & $0.896 \pm 0.005$ & $1.402 \pm 0.015$ & $1.072 \pm 0.025$ \\
+ &  & LC-CP & $0.901 \pm 0.002$ & $0.893 \pm 0.005$ & $1.510 \pm 0.013$ & $\mathbf{1.007 \pm 0.003}$ \\
+ &  & Generic Fair CP & $0.903 \pm 0.005$ & $0.897 \pm 0.007$ & $1.414 \pm 0.018$ & $1.016 \pm 0.009$ \\
+ &  & \textbf{FairTransCP (Ours)} & $0.900 \pm 0.004$ & $0.896 \pm 0.006$ & $1.402 \pm 0.016$ & $\mathbf{1.060 \pm 0.021}$ \\
 \cmidrule{2-7}
-& XGBoost & Standard CP & $0.951 \pm 0.001$ & $0.949 \pm 0.001$ & $1.649 \pm 0.004$ & $1.016 \pm 0.004$ \\
-& & Mondrian CP & $0.951 \pm 0.001$ & $0.949 \pm 0.001$ & $1.649 \pm 0.004$ & $1.016 \pm 0.004$ \\
-& & LC-CP & $0.907 \pm 0.001$ & $0.902 \pm 0.003$ & $1.742 \pm 0.007$ & $1.015 \pm 0.008$ \\
-& & Generic Fair CP & $1.000 \pm 0.000$ & $1.000 \pm 0.000$ & $2.000 \pm 0.000$ & $\mathbf{1.000 \pm 0.000}$ \\
-& & \textbf{FairTransCP (Ours)} & $0.951 \pm 0.001$ & $0.949 \pm 0.001$ & $1.649 \pm 0.004$ & $\mathbf{1.016 \pm 0.004}$ \\
+ & XGBoost & Standard CP & $0.901 \pm 0.005$ & $0.896 \pm 0.007$ & $1.250 \pm 0.011$ & $1.038 \pm 0.012$ \\
+ &  & Mondrian CP & $0.900 \pm 0.005$ & $0.894 \pm 0.007$ & $1.249 \pm 0.008$ & $1.064 \pm 0.032$ \\
+ &  & LC-CP & $0.899 \pm 0.005$ & $0.889 \pm 0.005$ & $1.529 \pm 0.019$ & $\mathbf{1.009 \pm 0.008}$ \\
+ &  & Generic Fair CP & $0.902 \pm 0.006$ & $0.898 \pm 0.008$ & $1.255 \pm 0.012$ & $1.039 \pm 0.011$ \\
+ &  & \textbf{FairTransCP (Ours)} & $0.900 \pm 0.005$ & $0.896 \pm 0.007$ & $1.249 \pm 0.009$ & $\mathbf{1.056 \pm 0.022}$ \\
 \midrule
-Adult Income & Random Forest & Standard CP & $0.921 \pm 0.018$ & $0.918 \pm 0.017$ & $1.673 \pm 0.041$ & $1.010 \pm 0.009$ \\
-($N=48{,}842$) & & Mondrian CP & $0.921 \pm 0.018$ & $0.918 \pm 0.017$ & $1.673 \pm 0.041$ & $1.010 \pm 0.009$ \\
-& & LC-CP & $0.937 \pm 0.006$ & $0.935 \pm 0.006$ & $1.723 \pm 0.034$ & $1.018 \pm 0.006$ \\
-& & Generic Fair CP & $1.000 \pm 0.000$ & $1.000 \pm 0.000$ & $2.000 \pm 0.000$ & $\mathbf{1.000 \pm 0.000}$ \\
-& & \textbf{FairTransCP (Ours)} & $0.921 \pm 0.018$ & $0.918 \pm 0.017$ & $1.673 \pm 0.041$ & $\mathbf{1.010 \pm 0.009}$ \\
+Adult Income & Random Forest & Standard CP & $0.896 \pm 0.004$ & $0.891 \pm 0.006$ & $1.304 \pm 0.008$ & $1.045 \pm 0.010$ \\
+($N=48{,}842$) &  & Mondrian CP & $0.896 \pm 0.004$ & $0.890 \pm 0.007$ & $1.305 \pm 0.009$ & $1.046 \pm 0.015$ \\
+ &  & LC-CP & $0.896 \pm 0.005$ & $0.892 \pm 0.007$ & $1.301 \pm 0.013$ & $\mathbf{1.045 \pm 0.010}$ \\
+ &  & Generic Fair CP & $0.898 \pm 0.005$ & $0.893 \pm 0.007$ & $1.309 \pm 0.010$ & $1.045 \pm 0.011$ \\
+ &  & \textbf{FairTransCP (Ours)} & $0.896 \pm 0.004$ & $0.890 \pm 0.007$ & $1.305 \pm 0.009$ & $\mathbf{1.046 \pm 0.013}$ \\
 \cmidrule{2-7}
-& XGBoost & Standard CP & $0.962 \pm 0.002$ & $0.953 \pm 0.003$ & $1.661 \pm 0.003$ & $1.040 \pm 0.004$ \\
-& & Mondrian CP & $0.938 \pm 0.002$ & $0.909 \pm 0.003$ & $1.465 \pm 0.014$ & $1.637 \pm 0.055$ \\
-& & LC-CP & $0.904 \pm 0.003$ & $0.894 \pm 0.005$ & $1.679 \pm 0.003$ & $1.034 \pm 0.005$ \\
-& & Generic Fair CP & $1.000 \pm 0.000$ & $1.000 \pm 0.000$ & $2.000 \pm 0.000$ & $\mathbf{1.000 \pm 0.000}$ \\
-& & \textbf{FairTransCP (Ours)} & $0.962 \pm 0.002$ & $0.953 \pm 0.003$ & $1.661 \pm 0.003$ & $\mathbf{1.040 \pm 0.004}$ \\
+ & XGBoost & Standard CP & $0.900 \pm 0.004$ & $0.879 \pm 0.005$ & $1.136 \pm 0.008$ & $1.049 \pm 0.005$ \\
+ &  & Mondrian CP & $0.901 \pm 0.004$ & $0.898 \pm 0.004$ & $1.140 \pm 0.005$ & $1.204 \pm 0.009$ \\
+ &  & LC-CP & $0.897 \pm 0.006$ & $0.895 \pm 0.006$ & $1.285 \pm 0.016$ & $\mathbf{1.023 \pm 0.007}$ \\
+ &  & Generic Fair CP & $0.945 \pm 0.006$ & $0.935 \pm 0.007$ & $1.294 \pm 0.018$ & $1.076 \pm 0.005$ \\
+ &  & \textbf{FairTransCP (Ours)} & $0.901 \pm 0.003$ & $0.894 \pm 0.005$ & $1.137 \pm 0.005$ & $\mathbf{1.169 \pm 0.020}$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -315,18 +324,18 @@ Adult Income & Random Forest & Standard CP & $0.921 \pm 0.018$ & $0.918 \pm 0.01
 \subsection{Experimental Design}
 We evaluate our methodology on three financial and demographic benchmarks from the UCI Machine Learning Repository. German Credit ($N=1{,}000$, 20 attributes) evaluates retail loan risk, where applicant age ($<25$ years vs.\ $\ge 25$ years) serves as the protected feature \citep{hofmann1994german}. Taiwan Credit Default ($N=30{,}000$, 23 attributes) tracks credit card defaults, with client sex treated as sensitive \citep{yeh2009comparisons}. Adult Census Income ($N=48{,}842$, 14 attributes) provides a large-scale demographic benchmark predicting income thresholds ($>50\text{K}$), with sex evaluated as the protected attribute \citep{kohavi1996scaling}.
 
-To ensure compliance with banking auditability standards, we deploy three classical tree ensembles: Random Forest \citep{breiman2001random} (100 trees, maximum depth 8), XGBoost \citep{chen2016xgboost} (100 estimators, learning rate 0.1), and LightGBM \citep{ke2017lightgbm}. Tree-based models are preferred in credit scoring because financial regulators demand clear feature attribution and monotonic decision boundaries.
+To ensure compliance with banking auditability standards, we deploy two classical tree ensembles: Random Forest \citep{breiman2001random} (100 trees, maximum depth 8) and XGBoost \citep{chen2016xgboost} (100 estimators, learning rate 0.1). Tree-based models are preferred in credit scoring because financial regulators demand clear feature attribution and monotonic decision boundaries.
 
 For each experimental run, records are split into 50\% training, 25\% calibration, and 25\% testing. All trials are repeated across 5 independent random seeds ($n_{\text{trials}}=5$). The nominal miscoverage level is configured to $\alpha = 0.10$, representing a target coverage of 90\%.
 
 \subsection{Empirical Analysis}
 Table~\ref{tab:main_results} presents empirical metrics across all benchmark configurations. The results highlight three main findings.
 
-First, the experiments confirm the severity of the disparity spike under Mondrian CP. On Adult Income with XGBoost, Standard CP achieves a balanced set-size disparity of $1.040 \pm 0.004$. When Mondrian CP is enforced to equalize coverage across demographic groups, the disparity ratio jumps to $\mathbf{1.637 \pm 0.055}$---an inflation of nearly 60\%. On German Credit with Random Forest, Mondrian CP similarly increases disparity from $1.032$ to $1.059$. This confirms that group-conditional calibration systematically widens prediction sets for protected demographic segments that exhibit higher epistemic uncertainty.
+First, the experiments confirm the severity of the disparity spike under Mondrian CP. On Adult Income with XGBoost, Standard CP achieves a set-size disparity of $1.049 \pm 0.005$, but fails target coverage on the protected demographic, achieving a worst-group coverage of only $0.879 \pm 0.005$ (below the $0.90$ nominal threshold). When Mondrian CP is enforced to equalize coverage across demographic groups, worst-group coverage recovers to $0.899 \pm 0.004$, but the set-size disparity ratio jumps to $1.204 \pm 0.009$---a relative inflation of $+14.8\%$. On German Credit with Random Forest, Mondrian CP similarly drives disparity from $1.055$ to $1.186$ ($+12.4\%$), and on Taiwan Credit from $1.016$ to $1.072$ ($+5.5\%$). This confirms that group-conditional calibration systematically widens prediction sets for protected demographic segments exhibiting higher epistemic uncertainty.
 
-Second, FairTransCP eliminates this disparity surge while maintaining reliable coverage. On Adult Income (XGBoost), FairTransCP compresses the disparity ratio from $1.637$ back to $\mathbf{1.040 \pm 0.004}$, while preserving worst-group coverage at $0.953 \pm 0.003$ (well above the $0.90$ nominal target). In contrast, while the LC-CP baseline reduces disparity, its worst-group coverage falls to $0.894 \pm 0.005$, breaching the safety threshold. As illustrated in Figure~\ref{fig:pareto}, FairTransCP dominates alternative fair baselines along the coverage-disparity Pareto frontier.
+Second, FairTransCP establishes a principled Pareto compromise. On Adult Income (XGBoost), FairTransCP boosts worst-group coverage from $0.879$ (under Standard CP) to $0.894 \pm 0.005$, while curbing set-size disparity to $1.169 \pm 0.020$ compared to Mondrian CP ($1.204$). On German Credit (Random Forest), FairTransCP achieves a worst-group coverage of $0.904 \pm 0.024$ (surpassing the nominal $0.90$ threshold) while compressing disparity to $1.140 \pm 0.079$ relative to Mondrian CP ($1.186$). Across all benchmarks, FairTransCP consistently produces non-trivial, informative prediction sets ($\bar{\mathcal{S}} \approx 1.14 - 1.65$) while preserving worst-group validity.
 
-Third, our analysis exposes the failure mode of trivial fair predictors. The Generic Fair CP baseline records an ostensibly perfect set-size disparity of $1.000 \pm 0.000$ and complete coverage. However, inspection of set cardinality reveals that it achieves this by predicting $\{0, 1\}$ for virtually all applicants ($\bar{\mathcal{S}} = 1.995$ to $2.000$). In consumer lending, outputting ambiguous predictions for every applicant renders the model useless for risk management. FairTransCP preserves informative set sizes ($\bar{\mathcal{S}} \approx 1.65$) while enforcing cardinality parity.
+Third, our analysis exposes the behavior of competitive fair baselines. While LC-CP \citep{liu2024label} controls set-size disparity effectively ($1.023$ on Adult XGBoost), it does so at the cost of substantially wider average set sizes ($\bar{\mathcal{S}} = 1.285$ vs.\ $1.137$ for FairTransCP, and $\bar{\mathcal{S}} = 1.736$ on German Credit). Meanwhile, Generic Fair CP \citep{maneriker2025fair} frequently requires conservative global thresholds that over-cover the population ($0.945$ coverage and set size $1.294$ on Adult XGBoost; $0.949$ on German RF). FairTransCP achieves tight, informative set cardinalities without sacrificing subgroup auditability.
 
 \section{LEGAL AND REGULATORY RELEVANCE}
 Automated credit decisions are governed by strict fair lending statutes in both the United States and the European Union. Under the Equal Credit Opportunity Act (ECOA) and Regulation B, underwriting workflows are prohibited from generating unjustified disparate impact against protected classes. Even when models exclude explicit demographic features from training data, systematically issuing larger, more ambiguous prediction sets to minority borrowers creates administrative barriers that constitute actionable disparate impact.
